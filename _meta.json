@@ -1,0 +1,24 @@
+{
+  "name": "mindvault",
+  "version": "1.0.0",
+  "date": "2026-07-16",
+  "category": "memory",
+  "platforms": ["openclaw", "autoclaw", "marvis", "cherrystudio", "coze"],
+  "tested_date": "2026-07-14",
+  "tested_rounds": "5000+",
+  "pricing": {
+    "mode": "freemium",
+    "free": "SKILL.md + scripts/ 全量开放，含 DRAS-V 五步协议 + 三层架构 + 三脚本完整版",
+    "paid": "赞赏版解锁：自动归档触发 + 周报生成 + HTML 可视化输出",
+    "payment_link": "https://pay.ldxp.cn/item/p0r2lb",
+    "price": "1.99元"
+  },
+  "dependencies": {
+    "python": "3.10+",
+    "sqlite3": "系统内置"
+  },
+  "keywords": {
+    "zh": ["对话归档", "对话备份", "长期记忆", "规则萃取", "自动进化", "项目快照", "DRAS-V", "思考流程", "自检循环", "搜索前置", "多Agent", "数据资产", "记忆系统"],
+    "en": ["mindvault", "conversation-archiver", "longterm-memory", "memory-evolution", "rule-extraction", "project-snapshot", "DRAS-V", "thinking-protocol", "self-check-loop", "search-first", "multi-agent", "data-sovereignty"]
+  }
+}
