@@ -4,7 +4,7 @@ description: >
   思维永生 · MindVault — Agent 对话归档与思考辅助系统。
   提供对话备份(JSONL)+规则萃取+项目快照三层记忆能力，以及DRAS-V五步思考辅助协议。
   5000+轮实战验证，跨平台(OpenClaw/Marvis/CherryStudio/Coze)。所有数据本地存储，不上传云端。
-version: 1.0.0
+version: 1.0.4
 author: zhouxin121
 license: MIT
 keywords:
