@@ -4,15 +4,26 @@ description: >
   思维永生 · MindVault — Agent 对话归档与思考辅助系统。
   提供对话备份(JSONL)+规则萃取+项目快照三层记忆能力，以及DRAS-V五步思考辅助协议。
   5000+轮实战验证，跨平台(OpenClaw/Marvis/CherryStudio/Coze)。所有数据本地存储，不上传云端。
-version: 1.0.4
+  Use when user says 对话备份、对话归档、归档对话、执行进化引擎、生成项目快照、走流程、DRASV。
+version: 1.0.6
 author: zhouxin121
 license: MIT
+category: memory
+platforms:
+  - openclaw
+  - autoclaw
+  - marvis
+  - cherrystudio
+  - coze
+permissions:
+  - read
+  - write
+  - exec
 keywords:
   - mindvault
   - conversation-archiver
   - 对话备份
   - 对话归档
-  - 资料备份
   - 长期记忆
   - memory-evolution
   - 自我进化
@@ -21,13 +32,6 @@ keywords:
   - 项目快照
   - DRAS-V
   - 思考流程
-  - Agent思考
-  - 任务分解
-  - 自检循环
-  - multi-agent
-  - openclaw
-  - autoclaw
-  - cherrystudio
 tested:
   date: "2026-07-14"
   os: macOS 15.x
@@ -53,7 +57,7 @@ AIGC:
 - **用户主动触发**：归档/进化/快照均由用户明确指令触发（如"归档对话"）。
 - **数据可迁移**：JSONL/FACT.md/PROJECT_SNAPSHOT.md 均为开放格式。
 - **敏感信息**：对话备份会保存用户消息。建议避免在对话中输入密码、密钥等。
-- **检测标记**：可选的规则加载验证标记（默认关闭），用户自行设定和删除。
+- **确认短语**：可选的规则加载验证短语（默认关闭），用户自行设定和删除。
 
 ---
 
@@ -110,8 +114,8 @@ R 阶段的数据来源：Layer 3 快照 / Layer 2 规则 / Layer 1 备份 / 当
 
 ## 可选：规则加载验证
 
-用户可自行在 Agent 记忆通道中写入检测标记，用于判断规则是否仍在线。
-检测词和位置由用户自行设定。默认不使用此功能。
+用户可自行在 Agent 记忆通道中写入确认短语，用于判断规则是否仍在线。
+短语内容和位置由用户自行设定。默认不使用此功能。
 
 ---
 
