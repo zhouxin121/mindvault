@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
-"""MindVault 基础版 — _index.json 管理工具
+"""MindVault — _index.json 管理工具（完整版）
 
-基础版命令：stats, pending
-赞赏版命令：mark, search, summary → https://pay.ldxp.cn/item/p0r2lb
-
+完整版命令：stats, pending, mark, search, summary
 
 子命令：
   stats      — 统计：文件数 / 总条目 / 轮次 / processed 比例
   pending    — 列出 processed=false 的文件
-  mark       — 将指定文件标记为 processed=true
+  mark       — 将指定文件标记为 processed=true（写入前做 if_version 读前校验）
   search     — 按日期/轮次范围搜索文件
   summary    — 输出 JSON 摘要（供 Agent 消费）
+
+写入纪律（B9/B15）：
+  - 写入类操作（mark）必须先确认 _index.json 存在（不存在即异常），
+    禁止在索引缺失时静默创建或静默返回空。
+  - 每次写索引 index_version +1，作为乐观版本令牌；
+    并发/多端写入前应先读取并核对 version，避免覆盖他人写入。
 
 用法：
   python archive_index.py <archive_dir> stats
@@ -84,9 +88,25 @@ def cmd_pending(index_dir: str):
               f"date: {f.get('date', '?')})")
 
 
-def cmd_mark(index_dir: str, filename: str):
+def cmd_mark(index_dir: str, filename: str, expect_version: int = None):
+    """标记文件为 processed（B9 乐观版本令牌 + B15 不存在即异常）。
+
+    expect_version：调用方在读取索引后携带的版本号；若与当前索引 version
+    不一致，说明索引在你读取之后被其他端修改过，拒绝写入以避免覆盖。
+    """
     idx = load_index(index_dir)
+    if not idx:
+        print(f"错误：未找到 _index.json（{index_dir}）——索引缺失时禁止静默写入。")
+        sys.exit(1)
     files = idx.get("files", [])
+    if not files:
+        print("错误：_index.json 缺少 files 列表，索引结构异常。")
+        sys.exit(1)
+    current_version = idx.get("index_version", 0)
+    if expect_version is not None and current_version != expect_version:
+        print(f"冲突：索引版本已变化（期望 {expect_version}，当前 {current_version}）。"
+              f"请重新读取索引核对后再写入，避免覆盖其他端的修改。")
+        sys.exit(1)
     found = False
     for f in files:
         if f.get("file") == filename:
@@ -98,8 +118,9 @@ def cmd_mark(index_dir: str, filename: str):
         print(f"错误：未找到文件 '{filename}'")
         sys.exit(1)
     idx["files"] = files
+    idx["index_version"] = current_version + 1
     save_index(index_dir, idx)
-    print(f"已标记: {filename}")
+    print(f"已标记: {filename}  (index_version {current_version} -> {idx['index_version']})")
 
 
 def cmd_search(index_dir: str, date_str: str = None, rounds_range: str = None):
@@ -168,20 +189,21 @@ if __name__ == "__main__":
         cmd_pending(index_dir)
     elif cmd == "mark":
         if not args:
-            print("用法: archive_index.py <dir> mark <filename>")
+            print("用法: archive_index.py <dir> mark <filename> [--if-version <N>]")
             sys.exit(1)
-        print("🚫 赞赏版功能：mark。基础版支持 stats 和 pending。\n获取完整版：https://pay.ldxp.cn/item/p0r2lb")
-        sys.exit(1)
+        expect_version = None
+        filename = args[0]
+        if len(args) >= 3 and args[1] == "--if-version":
+            expect_version = int(args[2])
+        cmd_mark(index_dir, filename, expect_version)
     elif cmd == "search":
         date_str = args[0] if args else None
         rounds_range = None
         if len(args) >= 2 and args[0] == "--rounds":
             rounds_range = args[1]
-        print("🚫 赞赏版功能：search。基础版支持 stats 和 pending。\n获取完整版：https://pay.ldxp.cn/item/p0r2lb")
-        sys.exit(1)
+        cmd_search(index_dir, date_str, rounds_range)
     elif cmd == "summary":
-        print("🚫 赞赏版功能：summary。基础版支持 stats 和 pending。\n获取完整版：https://pay.ldxp.cn/item/p0r2lb")
-        sys.exit(1)
+        cmd_summary(index_dir)
     else:
         print(f"未知子命令: {cmd}")
         sys.exit(1)

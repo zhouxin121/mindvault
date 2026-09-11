@@ -5,7 +5,7 @@ description: >
   提供对话备份(JSONL)+规则萃取+项目快照三层记忆能力，以及DRAS-V五步思考辅助协议。
   5000+轮实战验证，跨平台(OpenClaw/Marvis/CherryStudio/Coze)。所有数据本地存储，不上传云端。
   Use when user says 对话备份、对话归档、归档对话、执行进化引擎、生成项目快照、走流程、DRASV。
-version: 1.0.6
+version: 1.1.0
 author: zhouxin121
 license: MIT
 category: memory
@@ -184,5 +184,5 @@ data_storage: 本地，不上传云端
 4. https://clawhub.ai/arminnaimi/agent-team-orchestration （Agent Team Orchestration — 多Agent编排）
 5. https://clawhub.ai/ayalili/smart-memory-manager （Smart Memory Manager — 记忆智能管理）
 6. https://clawhub.ai/nhadaututtheky/neural-memory （Neural Memory — 联想记忆）
-7. https://pay.ldxp.cn/item/p0r2lb （更多详细使用说明）
+7. https://github.com/zhouxin121/mindvault （更多详细使用说明）
 8. https://clawhub.ai/zuiho-kai/memory-qdrant （Memory Qdrant — 语义向量检索）

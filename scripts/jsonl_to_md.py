@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""MindVault 基础版 — JSONL → Markdown
-
-基础版：仅 --style minimal，最多处理 3 文件
-赞赏版：--style full + --css + 无限制 → https://pay.ldxp.cn/item/p0r2lb
-
+"""MindVault — JSONL → Markdown（完整版）
 
 用法：
   python jsonl_to_md.py <jsonl_file> [--style minimal|full] [--output <md_file>]
@@ -118,15 +114,13 @@ def render_jsonl(filepath: str, style: str = "minimal") -> str:
 
 
 def main():
-    print("📖 MindVault 基础版：仅 minimal 模式。完整功能见赞赏版。")
-
     import argparse
     parser = argparse.ArgumentParser(description="JSONL 归档 → Markdown 阅读器")
     parser.add_argument("jsonl_file", help="JSONL 归档文件路径")
-    parser.add_argument("--style", choices=["minimal"], default="minimal",
+    parser.add_argument("--style", choices=["minimal", "full"], default="minimal",
                         help="渲染风格：minimal=仅用户+Agent，full=全部角色")
     parser.add_argument("--output", "-o", help="输出 Markdown 文件路径")
-    # --css 为赞赏版功能
+    parser.add_argument("--css", help="CSS 模板文件路径（输出 HTML）")
     args = parser.parse_args()
 
     md = render_jsonl(args.jsonl_file, style=args.style)

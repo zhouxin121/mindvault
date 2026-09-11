@@ -342,7 +342,11 @@ def load_index(archive_dir, conv_label):
 
 
 def get_last_archived_round(archive_dir, conv_label):
-    """从对话子目录的 _index.json 获取最后归档轮次。失败返回 0"""
+    """从对话子目录的 _index.json 获取最后归档轮次。
+
+    B15 语义：index 不存在返回 0（首次归档的合法起点）；但文件存在而
+    rounds 字段缺失/不可解析时，不再静默吞掉，改为打印显式警告。
+    """
     index = load_index(archive_dir, conv_label)
     if not index:
         return 0
@@ -354,15 +358,20 @@ def get_last_archived_round(archive_dir, conv_label):
         end_round = int(last_rounds.split('-')[-1])
         return end_round
     except (ValueError, IndexError):
+        print(f"⚠️ 警告：{conv_label}/_index.json 中未解析到有效 rounds 字段"
+              f"（'{last_rounds}'），按 0 处理并继续。建议人工核对索引完整性。")
         return 0
 
 
 def merge_index(archive_dir, conv_label, new_file_entries, new_total_rounds, new_total_messages):
-    """增量合并：将新文件追加到已有 _index.json。"""
+    """增量合并：将新文件追加到已有 _index.json（B9 版本令牌 + 首次写入修复）。"""
     existing = load_index(archive_dir, conv_label)
     subdir = os.path.join(archive_dir, conv_label)
     if not existing:
-        _write_index(archive_dir, conv_label, [], [], [], new_total_rounds, new_total_messages)
+        # 首次增量：以本次新文件作为 files 写出。
+        # 【修复历史 bug】旧版误传空列表 _write_index(..., [], [], [], rounds, msgs)，
+        # 导致 7 参数调用与 6 参数定义不匹配，_index.json 此前只能靠脚本手动生成。
+        _write_index(archive_dir, conv_label, new_file_entries, [], new_total_rounds, new_total_messages)
         return
 
     existing_files = existing.get('files', [])
@@ -372,6 +381,8 @@ def merge_index(archive_dir, conv_label, new_file_entries, new_total_rounds, new
     existing['total_messages'] = existing.get('total_messages', 0) + new_total_messages
     existing['total_files'] = len(existing_files)
     existing['archived_at'] = datetime.now(TZ_CN).strftime('%Y-%m-%dT%H:%M:%S+08:00')
+    # B9 乐观版本令牌：读存在于上次 version，本轮合并后 +1
+    existing['index_version'] = existing.get('index_version', 0) + 1
     if 'time_span' in existing and new_file_entries:
         existing['time_span']['end'] = new_file_entries[-1].get('date', '')
 
@@ -379,7 +390,7 @@ def merge_index(archive_dir, conv_label, new_file_entries, new_total_rounds, new
     with open(index_path, 'w', encoding='utf-8') as f:
         json.dump(existing, f, ensure_ascii=False, indent=2)
     print(f"\n索引已更新: {index_path}")
-    print(f"新增 {len(new_file_entries)} 个文件，累计 {len(existing_files)} 个，共 {existing['total_rounds']} 轮，{existing['total_messages']} 条。")
+    print(f"新增 {len(new_file_entries)} 个文件，累计 {len(existing_files)} 个，共 {existing['total_rounds']} 轮，{existing['total_messages']} 条（index_version={existing['index_version']}）。")
 
 
 # ── OpenClaw 模式 ──────────────────────────────────────
@@ -763,6 +774,7 @@ def _write_index(archive_dir, conv_label, file_entries, entries, total_rounds, t
         },
         "archived_at": datetime.now(TZ_CN).strftime('%Y-%m-%dT%H:%M:%S+08:00'),
         "trim_standard": "v3.1",
+        "index_version": 1,  # B9 版本令牌：全量写入起始为 1，增量合并时 +1
         "files": file_entries
     }
 
@@ -794,6 +806,7 @@ def _write_unified_index(archive_dir):
                         "total_rounds": idx.get("total_rounds", 0),
                         "total_messages": idx.get("total_messages", 0),
                         "total_files": idx.get("total_files", 0),
+                        "index_version": idx.get("index_version", 0),
                         "time_span": idx.get("time_span", {})
                     })
                 except Exception:

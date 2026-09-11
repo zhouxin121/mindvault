@@ -77,4 +77,4 @@ MIT License — 自由使用、修改、分发。
 
 ---
 
-*MindVault v1.0.0 · 5000+ 轮实战验证 · 跨平台 Agent 记忆基础设施*
+*MindVault v1.1.0 · 5000+ 轮实战验证 · 跨平台 Agent 记忆基础设施*
