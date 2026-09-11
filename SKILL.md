@@ -40,6 +40,11 @@ tested:
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 4fd20e68f8b80beb1e39f35a6c960ac4_5a36f32380cc11f1afc3525400de82e7
+    ReservedCode1: cPCUf98FXzhSQuaTmXjcnJEOQKwUqWLgQ8FTrr8cHvIdBg8zVJ947DiNpMHuJpjZM3HwBP9mHw10z3Pv+XdjK9SWKOK4l5l+AGEF5mpaJla0Hp3D9uHa3PVsBVi6o7AOdEXupmUlBLVEUogmyajzXO9W2I0mOcFRorG9QlPwNR8Sa71dVOm1w2pSrqM=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 4fd20e68f8b80beb1e39f35a6c960ac4_5a36f32380cc11f1afc3525400de82e7
+    ReservedCode2: cPCUf98FXzhSQuaTmXjcnJEOQKwUqWLgQ8FTrr8cHvIdBg8zVJ947DiNpMHuJpjZM3HwBP9mHw10z3Pv+XdjK9SWKOK4l5l+AGEF5mpaJla0Hp3D9uHa3PVsBVi6o7AOdEXupmUlBLVEUogmyajzXO9W2I0mOcFRorG9QlPwNR8Sa71dVOm1w2pSrqM=
 ---
 
 # 🧠 思维永生 · MindVault
@@ -177,6 +182,9 @@ data_storage: 本地，不上传云端
 ---
 
 ## 参考链接
+
+> 说明：本 Skill 为独立设计的原创实现（Layer 1-3 记忆架构 + DRAS-V 协议），
+> 下列链接为其设计取向可横向对比的同类开源记忆系统的参考清单，仅供功能对照与学习。
 
 1. https://clawhub.ai/nextfrontierbuilds/elite-longterm-memory （Elite Longterm Memory — 向量检索长期记忆）
 2. https://clawhub.ai/sarielwang93/memory-tiering （Memory Tiering — 热/温/冷分层记忆）

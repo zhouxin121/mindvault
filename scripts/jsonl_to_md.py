@@ -76,29 +76,60 @@ def render_jsonl(filepath: str, style: str = "minimal") -> str:
                     if trunc:
                         content += "\n\n*（内容已截断）*"
                     lines.append(f"{content}\n")
-                tools = entry.get("tool_calls", [])
+                tools = entry.get("tool_calls", []) or []
                 if tools:
                     lines.append("**工具调用：**\n")
+                    # 参数优先取 tool_calls 元素内的 args（真实工具参数）；
+                    # 回退读取 Agent 条目顶层 key_params（兼容 archive_export 的扁平导出格式）
+                    top_params = entry.get("key_params", {}) or {}
                     for t in tools:
-                        lines.append(f"- `{t.get('name','?')}`")
-                        params = t.get("key_params", {})
-                        if params:
-                            lines.append(f"  - {json.dumps(params, ensure_ascii=False)}")
+                        name = t.get('name', '?')
+                        args = t.get('args', {}) or {}
+                        if args:
+                            params_text = json.dumps(args, ensure_ascii=False)
+                        elif top_params:
+                            params_text = json.dumps(top_params, ensure_ascii=False)
+                        else:
+                            params_text = ""
+                        lines.append(f"- `{name}`")
+                        if params_text:
+                            lines.append(f"  - {params_text}")
                     lines.append("")
 
             elif role == "tool":
                 tool_name = entry.get("tool_name", "?")
                 lines.append(f"**工具：** `{tool_name}`\n")
-                error = entry.get("error")
-                if error:
-                    lines.append(f"⚠️ 错误：{error}\n")
-                else:
+                # 读取 archive_export 实际导出的 v3.1 字段：
+                # args_summary(key_param+计数) / files / urls / errors
+                args_summary = entry.get("args_summary", "") or ""
+                if args_summary:
+                    lines.append(f"- {args_summary}\n")
+                files = entry.get("files", []) or []
+                if files:
+                    lines.append("- 涉及文件：")
+                    for f in files:
+                        lines.append(f"  - `{f}`")
+                    lines.append("")
+                urls = entry.get("urls", []) or []
+                if urls:
+                    lines.append("- 涉及 URL：")
+                    for u in urls:
+                        lines.append(f"  - `{u}`")
+                    lines.append("")
+                errors = entry.get("errors", []) or []
+                if errors:
+                    lines.append("⚠️ 错误：")
+                    for e in errors:
+                        lines.append(f"  - {e}")
+                    lines.append("")
+                # 兼容旧版字段（summary / result_preview）
+                if not (args_summary or files or urls or errors):
                     summary = entry.get("summary", "")
                     if summary:
                         lines.append(f"{summary}\n")
-                result = entry.get("result_preview", "")
-                if result:
-                    lines.append(f"```\n{result}\n```\n")
+                    result = entry.get("result_preview", "")
+                    if result:
+                        lines.append(f"```\n{result}\n```\n")
 
             elif role == "system":
                 content = entry.get("content", "") or entry.get("origin", "")

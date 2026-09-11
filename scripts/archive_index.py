@@ -32,6 +32,24 @@ from datetime import datetime
 from pathlib import Path
 
 
+def parse_rounds(f: dict):
+    """从归档文件条目解析轮次区间，返回 (start, end) 或 None。
+
+    兼容 archive_export 实际写入的 rounds 字符串（如 "16-30"），
+    并向后兼容的 round_start / round_end 数字字段。
+    """
+    rs = f.get("rounds")
+    if rs and isinstance(rs, str) and "-" in rs:
+        try:
+            a, b = rs.split("-")
+            return int(a), int(b)
+        except ValueError:
+            pass
+    if "round_start" in f or "round_end" in f:
+        return int(f.get("round_start", 0) or 0), int(f.get("round_end", 0) or 0)
+    return None
+
+
 def load_index(index_dir: str) -> dict:
     """从 index_dir 往上溯一层找 _index.json，找不到则返回空结构。"""
     # 支持传入子目录（如 archive_dir/conv_label）或 archive_dir 本身
@@ -59,7 +77,8 @@ def cmd_stats(index_dir: str):
     files = idx.get("files", [])
     total_entries = sum(f.get("entries", 0) for f in files)
     total_rounds = sum(f.get("round_count", f.get("entries", 0)) for f in files)
-    total_msgs = sum(f.get("total_messages", 0) or 0 for f in files)
+    # 消息数 = 每条 JSONL 记录（entries）即为一条消息；兼容旧 total_messages 字段
+    total_msgs = sum(f.get("total_messages", 0) or f.get("entries", 0) for f in files)
     processed = sum(1 for f in files if f.get("processed", False))
     pending = len(files) - processed
 
@@ -83,8 +102,11 @@ def cmd_pending(index_dir: str):
     if len(pending) >= 5:
         print("⚠️  积压严重，建议执行进化引擎。")
     for f in pending:
-        print(f"  - {f.get('file', '?')}  (rounds: {f.get('round_count', f.get('entries', '?'))}, "
-              f"messages: {f.get('total_messages', '?')}, "
+        rr = parse_rounds(f)
+        rng = f"{rr[0]:04d}-{rr[1]:04d}" if rr else f.get('rounds', '?')
+        print(f"  - {f.get('file', '?')}  (rounds: {rng}, "
+              f"round_count: {f.get('round_count', '?')}, "
+              f"messages: {f.get('entries', '?')}, "
               f"date: {f.get('date', '?')})")
 
 
@@ -138,19 +160,26 @@ def cmd_search(index_dir: str, date_str: str = None, rounds_range: str = None):
         except ValueError:
             print("错误：rounds 范围格式应为 '20-40'")
             sys.exit(1)
-        results = [
-            f for f in results
-            if lo <= f.get("round_start", 0) <= hi
-            or lo <= f.get("round_end", 0) <= hi
-        ]
+        # 解析 export 写入的 rounds 字符串（rounds: "16-30"）
+        matched = []
+        for f in results:
+            rr = parse_rounds(f)
+            if rr is None:
+                continue
+            s, e = rr
+            if lo <= s <= hi or lo <= e <= hi:
+                matched.append(f)
+        results = matched
 
     if not results:
         print("无匹配结果。")
         return
     for f in results:
+        rr = parse_rounds(f)
+        rng = f"{rr[0]:04d}-{rr[1]:04d}" if rr else f.get('rounds', '?')
         print(f"{f.get('file', '?')}  date={f.get('date','?')} "
-              f"rounds=[{f.get('round_start','?')}-{f.get('round_end','?')}] "
-              f"entries={f.get('entries','?')}  msgs={f.get('total_messages','?')} "
+              f"rounds=[{rng}] "
+              f"entries={f.get('entries','?')}  msgs={f.get('entries','?')}  "
               f"processed={f.get('processed',False)}")
 
 
@@ -160,7 +189,7 @@ def cmd_summary(index_dir: str):
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "file_count": len(idx.get("files", [])),
         "total_entries": sum(f.get("entries", 0) for f in idx.get("files", [])),
-        "total_messages": sum(f.get("total_messages", 0) or 0 for f in idx.get("files", [])),
+        "total_messages": sum(f.get("total_messages", 0) or f.get("entries", 0) for f in idx.get("files", [])),
         "processed_count": sum(1 for f in idx.get("files", []) if f.get("processed", False)),
         "pending_count": sum(1 for f in idx.get("files", []) if not f.get("processed", False)),
         "date_range": {
@@ -197,10 +226,13 @@ if __name__ == "__main__":
             expect_version = int(args[2])
         cmd_mark(index_dir, filename, expect_version)
     elif cmd == "search":
-        date_str = args[0] if args else None
+        # 参数二选一：--rounds <A-B>（轮次范围）或 <date>（单一日期）
+        date_str = None
         rounds_range = None
-        if len(args) >= 2 and args[0] == "--rounds":
+        if args and args[0] == "--rounds":
             rounds_range = args[1]
+        else:
+            date_str = args[0] if args else None
         cmd_search(index_dir, date_str, rounds_range)
     elif cmd == "summary":
         cmd_summary(index_dir)

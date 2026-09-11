@@ -23,9 +23,9 @@ AIGC:
 
 | 层 | 名称 | 载体 | 作用 |
 |----|------|------|------|
-| Layer 1 | 对话归档 | JSONL + `scripts/*.py` | 对话永久备份，每 15 轮切割一个 JSONL，对话隔离存储 |
+| Layer 1 | 对话归档 | JSONL + `scripts/*.py` | 对话长期备份，每 15 轮切割一个 JSONL，对话隔离存储 |
 | Layer 2 | 规则萃取 | `DRASV_LOOP.md` 等 | 从归档对话中持续提取高频模式与偏好 |
-| Layer 3 | 项目快照 | `PROJECT_SNAPSHOT.md` | 30 秒恢复跨会话上下文 |
+| Layer 3 | 项目快照 | `PROJECT_SNAPSHOT.md` | 快速恢复跨会话上下文 |
 
 所有数据本地存储，不上传云端——你拥有完整的数据主权（JSONL 格式，换平台无缝带走）。
 
@@ -35,10 +35,10 @@ AIGC:
 
 | 能力 | 怎么用 | 底层发生了什么 |
 |------|--------|---------------|
-| 对话永久归档 | 说「归档对话」 | `archive_export.py` 从平台数据源导出对话（OpenClaw / Marvis 双模），支持全量 + 增量合并，每次写入 `_index.json` 并自增 `index_version` |
+| 对话长期归档 | 说「归档对话」 | `archive_export.py` 从平台数据源导出对话（OpenClaw / Marvis 双模），支持全量 + 增量合并，每次写入 `_index.json` 并自增 `index_version` |
 | 规则自动萃取 | 说「执行进化引擎」 | `archive_index.py` 分析未处理归档，提取高频模式和偏好，写入规则文件 |
-| 30 秒恢复上下文 | 说「生成项目快照」 | 基于 S.4 三遍扫描法生成 `PROJECT_SNAPSHOT.md`，下次对话直接继承 |
-| 强制五步思考 | 每次任务自动走 | DRAS-V 协议（D→R→A→S→V），不跳步、可审计 |
+| 快速恢复上下文 | 说「生成项目快照」 | 基于 S.4 三遍扫描法生成 `PROJECT_SNAPSHOT.md`，下次对话直接继承 |
+| 可选五步思考 | 用户说「走流程」「DRASV」时激活 | DRAS-V 协议（D→R→A→S→V），不跳步、可审计 |
 | 索引检索与统计 | 命令行 | `stats` / `pending` / `search` / `summary` 全量可用 |
 | 对话可读回溯 | 命令行 | `jsonl_to_md.py --style minimal\|full`，`--css` 输出带样式的 HTML 阅读页 |
 
@@ -94,3 +94,11 @@ AIGC:
 
 *思维永生 · MindVault v1.1.0 — 5000+ 轮实战验证，跨平台 (OpenClaw / Marvis / CherryStudio / Coze)*
 *（内容由AI生成，仅供参考）*
+
+---
+
+## 购买与支持
+
+MindVault 自 v1.1.0 起统一完整版免费发布。如需一对一部署指导、优先答疑等专属支持，或希望支持作者持续更新，可前往链动小铺：
+
+👉 **https://wzyp.cn/item/p0r2lb**
