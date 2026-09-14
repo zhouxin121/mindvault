@@ -1,15 +1,15 @@
 {
   "name": "mindvault",
-  "version": "1.1.0",
-  "date": "2026-09-11",
+  "version": "1.1.1",
+  "date": "2026-09-14",
   "category": "memory",
-  "platforms": ["openclaw", "autoclaw", "marvis", "cherrystudio", "coze"],
-  "tested_date": "2026-09-11",
+  "platforms": ["openclaw", "autoclaw", "marvis", "workbuddy", "cherrystudio", "coze"],
+  "tested_date": "2026-09-14",
   "tested_rounds": "5000+",
   "pricing": {
     "mode": "free",
-    "free": "完整版全量开放：三脚本全部能力（stats/pending/mark/search/summary、minimal/full/--css、OpenClaw+Marvis 双模归档+增量合并）+ DRAS-V 五步协议 + 三层架构，无功能阉割",
-    "note": "v1.1.0 起不再区分免费版/赞赏版，统一为完整版发布"
+    "free": "完整版全量开放：三脚本全部能力（stats/pending/mark/search/summary、minimal/full/--css、OpenClaw+Marvis+WorkBuddy 三模归档+增量合并）+ DRAS-V 五步协议 + 三层架构，无功能阉割",
+    "note": "v1.1.0 起不再区分免费版/赞赏版，统一为完整版发布；v1.1.1 修复 P0/P1 缺陷并整合 WorkBuddy 原生会话机制"
   },
   "dependencies": {
     "python": "3.10+",

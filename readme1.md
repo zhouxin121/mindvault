@@ -35,7 +35,7 @@ AIGC:
 
 | 能力 | 怎么用 | 底层发生了什么 |
 |------|--------|---------------|
-| 对话长期归档 | 说「归档对话」 | `archive_export.py` 从平台数据源导出对话（OpenClaw / Marvis 双模），支持全量 + 增量合并，每次写入 `_index.json` 并自增 `index_version` |
+| 对话长期归档 | 说「归档对话」 | `archive_export.py` 从平台数据源导出对话（OpenClaw / Marvis / WorkBuddy 三模），支持全量 + 增量合并，每次写入 `_index.json` 并自增 `index_version` |
 | 规则自动萃取 | 说「执行进化引擎」 | `archive_index.py` 分析未处理归档，提取高频模式和偏好，写入规则文件 |
 | 快速恢复上下文 | 说「生成项目快照」 | 基于 S.4 三遍扫描法生成 `PROJECT_SNAPSHOT.md`，下次对话直接继承 |
 | 可选五步思考 | 用户说「走流程」「DRASV」时激活 | DRAS-V 协议（D→R→A→S→V），不跳步、可审计 |
@@ -84,7 +84,7 @@ AIGC:
 | `SKILL.md` | 核心指令集（DRAS-V + 三层架构），Agent 直接加载执行 |
 | `README.md` | 项目概览，GitHub 首页展示 |
 | `readme1.md` | 本文档，完整版部署指南 |
-| `scripts/archive_export.py` | 对话归档导出（OpenClaw + Marvis 双模，全量/增量） |
+| `scripts/archive_export.py` | 对话归档导出（OpenClaw + Marvis + WorkBuddy 三模，全量/增量） |
 | `scripts/archive_index.py` | 归档索引管理（stats / pending / mark / search / summary） |
 | `scripts/jsonl_to_md.py` | JSONL → Markdown / HTML（minimal / full / --css） |
 | `LICENSE` | MIT 开源协议 |
@@ -92,7 +92,7 @@ AIGC:
 
 ---
 
-*思维永生 · MindVault v1.1.0 — 5000+ 轮实战验证，跨平台 (OpenClaw / Marvis / CherryStudio / Coze)*
+*思维永生 · MindVault v1.1.1 — 5000+ 轮实战验证，跨平台 (OpenClaw / Marvis / WorkBuddy / CherryStudio / Coze)*
 *（内容由AI生成，仅供参考）*
 
 ---

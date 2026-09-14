@@ -3,9 +3,9 @@ name: mindvault
 description: >
   思维永生 · MindVault — Agent 对话归档与思考辅助系统。
   提供对话备份(JSONL)+规则萃取+项目快照三层记忆能力，以及DRAS-V五步思考辅助协议。
-  5000+轮实战验证，跨平台(OpenClaw/Marvis/CherryStudio/Coze)。所有数据本地存储，不上传云端。
+  5000+轮实战验证，跨平台(OpenClaw/Marvis/WorkBuddy/CherryStudio/Coze)。所有数据本地存储，不上传云端。
   Use when user says 对话备份、对话归档、归档对话、执行进化引擎、生成项目快照、走流程、DRASV。
-version: 1.1.0
+version: 1.1.1
 author: zhouxin121
 license: MIT
 category: memory
@@ -13,6 +13,7 @@ platforms:
   - openclaw
   - autoclaw
   - marvis
+  - workbuddy
   - cherrystudio
   - coze
 permissions:
@@ -164,7 +165,7 @@ failure_paths: 8
 tools_available: yes
 trust_signals:
   tested: 5000+轮实战验证
-  platforms: OpenClaw/Marvis/CherryStudio/Coze
+  platforms: OpenClaw/Marvis/WorkBuddy/CherryStudio/Coze
   authored_by_tester: true
 data_storage: 本地，不上传云端
 ```

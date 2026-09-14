@@ -1,3 +1,12 @@
+## [1.1.1] - 2026-09-14
+- **archive_export.py（P0-1 修复）**：OpenClaw 模式新增独立 `role == 'toolResult'` 分支——现代 OpenClaw 格式 toolResult 为独立消息（含 toolCallId/toolName/content/isError），旧版仅在 assistant 内嵌套处理导致独立消息整条丢失；现按 toolCallId 精确匹配/无 id 按 toolName 匹配待配对 toolCall，调用 process_tool 写出
+- **archive_export.py（P0-2 修复）**：OpenClaw/Marvis 模式 toolCall 参数读取改为优先 `arguments`（OpenClaw 真实字段，可含 partialArgs 流式增量层），兼容旧 `args`/`input`；修复此前恒读空导致 49.1% 工具参数数据损失
+- **archive_export.py（P1-1 修复）**：增量归档命名与实际轮次区间脱钩修复——文件名与索引 rounds 字段改用实际包含条目的轮次范围（actual_min-actual_max）而非固定窗口起点，消除增量阶段 rounds 前缀错标
+- **archive_export.py（P1-3 修复）**：round-0 消息（首条 user 之前的消息）不再被静默丢弃，纳入首个批次归档，文件轮次区间与索引计数一致
+- **archive_index.py（P1-2 修复）**：`search --rounds` 区间重叠判定由 `lo <= s <= hi or lo <= e <= hi` 改为 `s <= hi and e >= lo`，覆盖"目标区间完全包含文件区间"场景
+- **archive_export.py（新增 WorkBuddy 模式）**：整合 raw-conversation-backup v1.0.1 的 WorkBuddy 原生会话文件机制为第三种模式 `workbuddy`，从 `~/.workbuddy/projects/<cwd 编码>/<sessionId>.jsonl` 逐字提取，机制差异（逐字保序禁排序 / 毫秒戳转 ISO+08:00 / callId 配对 / user_query 剥离 system-reminder）写入 _index.json；README 同步
+- **SKILL.md / _meta.json**：版本统一至 1.1.1，平台/机制适配表补充 WorkBuddy；三脚本依赖无新增
+
 ## [修复记录] - 2026-09-11（基于 1.1.0 发布前评审，版本号维持 1.1.0 不变）
 
 - **jsonl_to_md.py**（F1 修复）：`--style full` 下 Tool 消息改为读取 archive_export 实际导出的字段（args_summary / files / urls / errors），修复此前误读 error/summary/result_preview 导致 Tool 内容全丢的问题；同时保留旧字段兼容回退

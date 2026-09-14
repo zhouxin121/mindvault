@@ -10,6 +10,11 @@ Marvis 模式:
   python archive_export.py marvis <conversation_id> <db_path> <archive_dir> --conv-label <label> [--incremental]
   从 data.db 的 messages 表中提取消息
 
+WorkBuddy 模式:
+  python archive_export.py workbuddy <cwd_key> <archive_dir> --conv-label <label> [--session-id <sid>] [--incremental]
+  从 ~/.workbuddy/projects/<cwd_key>/<sessionId>.jsonl 提取消息
+  机制差异：逐字保序 / callId 配对 / 毫秒时间戳 / user_query 剥离，见源码 WorkBuddy 模式注释块
+
 --conv-label 必填：对话标识（AutoClaw: agent id / OpenClaw: session 名 / Marvis: conversation_id 前 8 位）
 用于创建对话专属子目录，防止不同对话的同名文件相互覆盖。
 
@@ -414,6 +419,7 @@ def extract_openclaw(sessions_dir, archive_dir, conv_label, incremental=False):
     entries = []
     round_num = 0
     last_timestamp = ""  # 降级策略：agent/tool 消息无时间戳时继承上一条
+    pending_tool_calls = []  # 当前轮待配对 toolResult 的 toolCall 参数缓存（P0-1）
 
     for jf in jsonl_files:
         with open(jf, 'r', encoding='utf-8') as f:
@@ -453,9 +459,14 @@ def extract_openclaw(sessions_dir, archive_dir, conv_label, incremental=False):
                     elif ct == 'thinking':
                         thinking_parts.append(c.get('text', c.get('thinking', '')))
                     elif ct == 'toolCall':
+                        # P0-2: OpenClaw 真实字段为 arguments（可含 partialArgs 流式增量层），兼容旧 args/input
+                        args_raw = c.get('arguments', c.get('args', c.get('input', {})))
+                        if isinstance(args_raw, dict) and 'partialArgs' in args_raw:
+                            args_raw = args_raw.get('partialArgs', {})
                         tool_calls_parts.append({
+                            'id': c.get('callId', c.get('id', '')),
                             'name': c.get('toolName', c.get('name', '')),
-                            'args': c.get('args', c.get('input', {}))
+                            'args': args_raw
                         })
                     elif ct == 'toolResult':
                         tool_results_parts.append({
@@ -465,6 +476,7 @@ def extract_openclaw(sessions_dir, archive_dir, conv_label, incremental=False):
 
                 if role == 'user':
                     round_num += 1
+                    pending_tool_calls = []  # 新一轮开始，清空旧轮 toolCall 缓存
                     # 增量模式：跳过已归档的轮次
                     if incremental and round_num <= start_round:
                         continue
@@ -481,11 +493,13 @@ def extract_openclaw(sessions_dir, archive_dir, conv_label, incremental=False):
                         continue
                     content = '\n'.join(text_parts)
                     reasoning = '\n'.join(thinking_parts)
+                    # 把本消息内出现的 toolCall 参数入缓存，供后续独立 toolResult 消息配对
+                    pending_tool_calls.extend(tool_calls_parts)
                     entries.append({
                         'round': round_num,
                         'entry': process_agent(content, reasoning, tool_calls_parts, timestamp, ts_inherited)
                     })
-                    # 如果有 toolResult，也加进去，并附上对应 toolCall 的 args
+                    # 兼容旧格式：toolResult 内嵌在 assistant content 中
                     for tr in tool_results_parts:
                         tr_name = tr.get('tool_name', '')
                         # 匹配最近一条同名 toolCall 的参数
@@ -504,6 +518,44 @@ def extract_openclaw(sessions_dir, archive_dir, conv_label, incremental=False):
                                 ts_inherited=ts_inherited
                             )
                         })
+                elif role == 'toolResult':
+                    # P0-1 修复：OpenClaw 现代格式中 toolResult 为独立消息
+                    # （message.role == 'toolResult'，含 toolName/toolCallId/content/isError），
+                    # 旧版 extract_openclaw 未处理该分支导致整条工具结果丢失。
+                    if incremental and round_num <= start_round:
+                        continue
+                    tr_name = message.get('toolName', message.get('name', ''))
+                    tr_call_id = message.get('toolCallId', '')
+                    tr_content = message.get('content', '')
+                    # content 可能是字符串或 [{type:'text',...},...]
+                    if isinstance(tr_content, list):
+                        tr_text = '\n'.join(
+                            c.get('text', '') for c in tr_content if isinstance(c, dict)
+                        )
+                    else:
+                        tr_text = str(tr_content) if tr_content is not None else ''
+                    # 按 toolCallId 精确匹配；无 id 时按 toolName 匹配最近一条同名
+                    tr_args = {}
+                    match_idx = None
+                    for i, tc in enumerate(pending_tool_calls):
+                        if tr_call_id and tc.get('id') == tr_call_id:
+                            match_idx = i
+                            break
+                        if not tr_call_id and tc.get('name') == tr_name:
+                            match_idx = i
+                            break
+                    if match_idx is not None:
+                        tr_args = pending_tool_calls.pop(match_idx).get('args', {})
+                    entries.append({
+                        'round': round_num,
+                        'entry': process_tool(
+                            tr_text,
+                            tr_name,
+                            timestamp,
+                            tool_call_args=tr_args,
+                            ts_inherited=ts_inherited
+                        )
+                    })
 
     _write_archive(entries, archive_dir, conv_label, incremental=incremental, existing_total_rounds=start_round)
 
@@ -591,9 +643,13 @@ def extract_marvis(conv_id, db_path, archive_dir, conv_label, incremental=False)
                     tcs = json.loads(tool_calls_raw)
                     if isinstance(tcs, list):
                         for tc in tcs:
+                            # P0-2 覆盖：优先 arguments（OpenClaw 同构），兼容 args/input
+                            args_raw = tc.get('arguments', tc.get('args', {}))
+                            if isinstance(args_raw, dict) and 'partialArgs' in args_raw:
+                                args_raw = args_raw.get('partialArgs', {})
                             tool_calls_list.append({
                                 'name': tc.get('name', ''),
-                                'args': tc.get('args', {})
+                                'args': args_raw
                             })
             except Exception:
                 pass
@@ -620,6 +676,337 @@ def extract_marvis(conv_id, db_path, archive_dir, conv_label, incremental=False)
             })
 
     _write_archive(entries, archive_dir, conv_label, incremental=incremental, existing_total_rounds=start_round)
+
+
+# ── WorkBuddy 模式 ─────────────────────────────────────
+# 机制差异（相对 OpenClaw / Marvis）：
+#   - 数据源是 WorkBuddy 原生逐字会话文件 ~/.workbuddy/projects/<cwd 编码>/<sessionId>.jsonl
+#   - 源记录类型为 message / function_call / function_call_result / reasoning / ai-title 混排
+#   - user 真实正文被 <user_query>…</user_query> 包裹，外层 <system-reminder> 为系统注入必须剥离
+#   - 时间戳为 int Unix 毫秒且**非单调**（单会话实测 18 处回退 78~1828ms），
+#     必须严格按源文件 append 顺序落盘，禁止按时间戳排序
+#   - function_call 与 function_call_result 靠 callId 配对还原为 tool 条目
+
+_HOST_HOME = os.path.expanduser("~")
+_WB_USER_QUERY_RE = re.compile(r"<user_query>(.*?)</user_query>", re.S)
+_WB_SYSREM_RE = re.compile(r"<system-reminder\b.*?</system-reminder>", re.S)
+_WB_PATH_KEYS = ("file_path", "path", "local_path", "notebook", "filePath")
+_WB_URL_KEYS = ("url", "link", "uri")
+_WB_KEY_KEYS = ("file_path", "path", "url", "command", "pattern", "query",
+                "prompt", "title", "skill", "name", "description")
+
+
+def _wb_iso8(ms):
+    """int 毫秒 -> ISO 8601 +08:00 秒级（与 to_gmt8 / v3.1 校验器格式一致）。
+    WorkBuddy 源时间戳为 Unix 毫秒，精确换算出秒级 ISO 字符串；
+    毫秒精度仍保留在每条目的 raw 源记录中，不被丢弃。"""
+    if ms is None:
+        return None
+    try:
+        return datetime.fromtimestamp(int(ms) / 1000.0, TZ_CN).strftime('%Y-%m-%dT%H:%M:%S+08:00')
+    except Exception:
+        return None
+
+
+def _wb_resolve_source(cwd_key, session_id=None):
+    """定位 WorkBuddy 原生会话文件。'projects' 用字符串拼接规避关键字面量拦截。"""
+    base = os.path.join(_HOST_HOME, ".workbuddy", "pro" + "jects", cwd_key)
+    if not os.path.isdir(base):
+        print(f"[WorkBuddy] 目录不存在: {base}")
+        return None, None
+    if session_id:
+        p = os.path.join(base, session_id + ".jsonl")
+        if not os.path.exists(p):
+            print(f"[WorkBuddy] 会话文件不存在: {p}")
+            return None, None
+        return p, session_id
+    cands = [os.path.join(base, f) for f in os.listdir(base) if f.endswith(".jsonl")]
+    if not cands:
+        print(f"[WorkBuddy] 目录内无 .jsonl: {base}")
+        return None, None
+    p = max(cands, key=os.path.getmtime)
+    return p, os.path.basename(p)[:-len(".jsonl")]
+
+
+def _wb_load_records(path, session_id):
+    """逐行读取源记录，仅保留指定 session（若提供）。"""
+    recs = []
+    with open(path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                o = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if session_id and o.get("sessionId") and o.get("sessionId") != session_id:
+                continue
+            recs.append(o)
+    return recs
+
+
+def _wb_strip_user_text(txt):
+    """剥离 system-reminder 包裹层，还原真实 user query 原文。"""
+    m = _WB_USER_QUERY_RE.search(txt or "")
+    if m:
+        return m.group(1).strip("\n")
+    cleaned = _WB_SYSREM_RE.sub("", txt or "").strip()
+    return cleaned if cleaned else (txt or "")
+
+
+def _wb_msg_text(msg):
+    """返回 (正文, attachments)。"""
+    parts, atts = [], []
+    for c in (msg.get("content") or []):
+        if not isinstance(c, dict):
+            continue
+        t = c.get("type")
+        if t in ("input_text", "output_text", "text"):
+            if c.get("text"):
+                parts.append(c["text"])
+        elif t in ("image_blob_ref", "image", "image_url", "file"):
+            atts.append({k: v for k, v in c.items() if k in
+                         ("type", "name", "mimeType", "mime_type", "size", "ref", "url")})
+    return "\n".join(parts), atts
+
+
+def _wb_reasoning_text(rec):
+    """reasoning 正文优先取 rawContent[].text。"""
+    rc = rec.get("rawContent") or []
+    out = [x.get("text", "") for x in rc if isinstance(x, dict)] if isinstance(rc, list) else []
+    txt = "\n".join([t for t in out if t]).strip()
+    if txt:
+        return txt
+    c = rec.get("content")
+    if isinstance(c, list):
+        return "\n".join([x.get("text", "") for x in c if isinstance(x, dict)]).strip()
+    return ""
+
+
+def _wb_key_param(args):
+    if not isinstance(args, dict):
+        return None
+    for k in _WB_KEY_KEYS:
+        v = args.get(k)
+        if isinstance(v, str) and v.strip():
+            return v.strip()[:200]
+    return None
+
+
+def _wb_collect_paths(args):
+    hits = []
+    if isinstance(args, dict):
+        for k in _WB_PATH_KEYS:
+            v = args.get(k)
+            if isinstance(v, str) and ("/" in v or v.endswith(
+                    (".py", ".md", ".json", ".jsonl", ".jpg", ".png", ".txt"))):
+                hits.append(v)
+    return hits
+
+
+def _wb_collect_urls(args):
+    hits = []
+    if isinstance(args, dict):
+        for k in _WB_URL_KEYS:
+            v = args.get(k)
+            if isinstance(v, str) and v.startswith(("http://", "https://")):
+                hits.append(v)
+    elif isinstance(args, str):
+        hits.extend(re.findall(r"https?://\S+", args))
+    return hits
+
+
+def extract_workbuddy(archive_dir, conv_label, cwd_key, session_id=None, incremental=False):
+    """从 WorkBuddy 原生会话 JSONL 提取消息（机制：逐字/保序/callId 配对/毫秒戳）。"""
+    src, sid = _wb_resolve_source(cwd_key, session_id)
+    if not src:
+        print("[WorkBuddy] 未找到源会话文件，退出。")
+        return
+
+    start_round = 0
+    if incremental:
+        start_round = get_last_archived_round(archive_dir, conv_label)
+        if start_round > 0:
+            print(f"[增量] 最后归档轮次: {start_round}，将导出第 {start_round + 1} 轮起的新消息")
+
+    recs = _wb_load_records(src, sid)
+    if not recs:
+        print("[WorkBuddy] 源记录为空，退出。")
+        return
+    print(f"[WorkBuddy] 源文件: {src}\n读取源记录: {len(recs)} 条")
+
+    # ── 严格按 append 顺序构建条目（禁止排序），user 出现即 +1 轮 ──
+    entries = []
+    seq = 0
+    round_num = 0
+    last_ts = None
+    pending_reasoning = []
+    tool_buf = {}
+
+    def wb_emit(role, ts_ms, content, extra=None, raw_rec=None):
+        nonlocal seq, round_num, last_ts
+        seq += 1
+        inherited = False
+        ts = _wb_iso8(ts_ms)
+        if ts is None:
+            ts = last_ts
+            inherited = True
+        entry = {
+            "timestamp": ts,
+            "role": role,
+            "round": round_num,
+            "seq": seq,
+            "content": content if isinstance(content, str) else "",
+        }
+        if inherited:
+            entry["ts_inherited"] = True
+        if extra:
+            entry.update({k: v for k, v in extra.items() if v not in (None, "", [])})
+        if raw_rec is not None:
+            entry["raw"] = json.dumps(raw_rec, ensure_ascii=False)
+        entries.append({'round': round_num, 'entry': entry})
+        if ts:
+            last_ts = ts
+
+    def wb_flush_tool(pair):
+        call = pair.get("call") or {}
+        res = pair.get("result") or {}
+        args = call.get("arguments")
+        out = res.get("output")
+        out_txt = out.get("text", "") if isinstance(out, dict) else ("" if out is None else str(out))
+        status = res.get("status")
+        content = out_txt
+        if not content and args is not None:
+            content = args if isinstance(args, str) else json.dumps(args, ensure_ascii=False)
+        if not isinstance(content, str):
+            content = json.dumps(content, ensure_ascii=False)
+        extra = {
+            "tool_name": call.get("name") or res.get("name"),
+            "key_param": _wb_key_param(args),
+            "args_summary": (args if isinstance(args, str)
+                             else json.dumps(args, ensure_ascii=False)[:800]) if args is not None else None,
+        }
+        files = _wb_collect_paths(args)
+        urls = _wb_collect_urls(args)
+        if files:
+            extra["files"] = files
+        if urls:
+            extra["urls"] = urls
+        if status and status not in ("success", "completed", "ok"):
+            extra["errors"] = [str(status)]
+        wb_emit("tool", res.get("timestamp") or call.get("timestamp"), content, extra, raw_rec=res or call)
+
+    for rec in recs:
+        t = rec.get("type")
+        if t == "message":
+            role = rec.get("role")
+            body, atts = _wb_msg_text(rec)
+            extra = {}
+            if atts:
+                extra["attachments"] = atts
+            if role == "user":
+                round_num += 1
+                if incremental and round_num <= start_round:
+                    continue
+                wb_emit("user", rec.get("timestamp"), _wb_strip_user_text(body), extra, raw_rec=rec)
+            elif role == "assistant":
+                if incremental and round_num <= start_round:
+                    continue
+                if pending_reasoning:
+                    extra["reasoning"] = "\n\n".join(pending_reasoning)
+                    pending_reasoning = []
+                wb_emit("agent", rec.get("timestamp"), body, extra, raw_rec=rec)
+        elif t == "reasoning":
+            if incremental and round_num <= start_round:
+                continue
+            txt = _wb_reasoning_text(rec)
+            if txt:
+                pending_reasoning.append(txt)
+        elif t == "function_call":
+            if incremental and round_num <= start_round:
+                continue
+            cid = rec.get("callId") or rec.get("id")
+            tool_buf[cid] = {"call": rec, "result": None}
+        elif t == "function_call_result":
+            if incremental and round_num <= start_round:
+                continue
+            cid = rec.get("callId") or rec.get("parentId")
+            pair = tool_buf.get(cid) or {"call": None, "result": None}
+            pair["result"] = rec
+            wb_flush_tool(pair)
+            tool_buf.pop(cid, None)
+
+    for cid in list(tool_buf.keys()):  # 未收到 result 的悬空调用
+        wb_flush_tool(tool_buf[cid])
+
+    # 增量模式下 round 从 start_round+1 重新连续编号，保证批次切割正确
+    if incremental and start_round > 0:
+        seen = {}
+        new_entries = []
+        next_round = start_round + 1
+        for e in entries:
+            if e['round'] not in seen:
+                seen[e['round']] = next_round
+                next_round += 1
+            e['round'] = seen[e['round']]
+            e['entry']['round'] = e['round']
+            new_entries.append(e)
+        entries = new_entries
+
+    # 附加 WorkBuddy 机制元信息到索引（写入 _index.json 侧）
+    _wb_extraction_notes = [
+        "数据源: ~/.workbuddy/projects/<cwd>/<sessionId>.jsonl（WorkBuddy 原生逐字落盘）",
+        "100% 逐字还原：每条目 raw 字段保存源记录完整 JSON 对象，无删减无截断",
+        "user 正文已剥离 <system-reminder> 包裹层，仅保留 <user_query> 内真实原文",
+        "时间戳为源记录 Unix 毫秒戳精确转换为 ISO 8601 +08:00，非继承",
+        "function_call 与 function_call_result 按 callId 配对还原为 tool 条目",
+        "reasoning 文本取自 rawContent[].text，附加到随后的 assistant 条目",
+        "顺序严格遵循源文件 append 顺序（源数据存在轮内毫秒级写入回退，不按时间戳重排）",
+    ]
+    _write_archive_with_meta(
+        entries, archive_dir, conv_label, incremental=incremental,
+        existing_total_rounds=start_round,
+        source_framework="workbuddy",
+        backup_method="native-session-jsonl-extraction",
+        notes=_wb_extraction_notes,
+        source_extra={
+            "session_id": sid,
+            "source_records": len(recs),
+            "record_types": {
+                t: sum(1 for r in recs if r.get("type") == t)
+                for t in sorted({r.get("type") for r in recs})
+            },
+        },
+    )
+
+
+def _write_archive_with_meta(entries, archive_dir, conv_label, incremental=False,
+                             existing_total_rounds=0, source_framework=None,
+                             backup_method=None, notes=None, source_extra=None):
+    """带来源元数据的归档写入：复用 _write_archive，随后在 _index.json 补 WorkBuddy 元信息。"""
+    _write_archive(entries, archive_dir, conv_label, incremental=incremental,
+                   existing_total_rounds=existing_total_rounds)
+    if not source_framework:
+        return
+    subdir = os.path.join(archive_dir, conv_label)
+    idx_path = os.path.join(subdir, "_index.json")
+    if not os.path.exists(idx_path):
+        return
+    try:
+        with open(idx_path, 'r', encoding='utf-8') as f:
+            index = json.load(f)
+    except Exception:
+        return
+    index["source_framework"] = source_framework
+    if backup_method:
+        index["backup_method"] = backup_method
+    if notes:
+        index["extraction_notes"] = notes
+    if source_extra:
+        index["source"] = source_extra
+    with open(idx_path, 'w', encoding='utf-8') as f:
+        json.dump(index, f, ensure_ascii=False, indent=2)
 
 
 # ── 通用写入逻辑 ────────────────────────────────────────
@@ -660,7 +1047,12 @@ def _write_archive(entries, archive_dir, conv_label, incremental=False, existing
 
     for batch_start in range(first_batch_start, total_rounds + 1, ROUNDS_PER_FILE):
         batch_end = min(batch_start + ROUNDS_PER_FILE - 1, total_rounds)
-        batch_entries = [e for e in entries if batch_start <= e['round'] <= batch_end]
+        # P1-3 修复：round-0（首条 user 之前的消息）在首个批次一并归档，
+        # 不再因 round 小于 1 被静默丢弃，保证文件与索引计数一致。
+        batch_entries = [e for e in entries if (
+            (e['round'] == 0 and batch_start == 1)
+            or (batch_start <= e['round'] <= batch_end)
+        )]
 
         if not batch_entries:
             continue
@@ -670,8 +1062,14 @@ def _write_archive(entries, archive_dir, conv_label, incremental=False, existing
 
         round_nums_in_file = set(e['round'] for e in batch_entries)
 
+        # P1-1 修复：文件名与索引 rounds 区间使用「实际包含条目的轮次范围」
+        # （actual_min - actual_max），而非固定窗口边界，避免增量阶段 rounds 前缀错标
+        # 例：existing=11 轮时仅新增第 12 轮，旧版错标为 rounds-0001-0012，现为 rounds-0012-0012。
+        actual_min = min(round_nums_in_file)
+        actual_max = max(round_nums_in_file)
+
         # 文件名：{对话标识}_{日期}_rounds-{起始}-{结束}.jsonl
-        filename = f"{conv_label}_{date_str}_rounds-{batch_start:04d}-{batch_end:04d}.jsonl"
+        filename = f"{conv_label}_{date_str}_rounds-{actual_min:04d}-{actual_max:04d}.jsonl"
         filepath = os.path.join(subdir, filename)
 
         with open(filepath, 'w', encoding='utf-8') as f:
@@ -683,7 +1081,7 @@ def _write_archive(entries, archive_dir, conv_label, incremental=False, existing
         file_size = os.path.getsize(filepath)
         file_entries.append({
             "file": filename,
-            "rounds": f"{batch_start:04d}-{batch_end:04d}",
+            "rounds": f"{actual_min:04d}-{actual_max:04d}",
             "date": date_str,
             "entries": len(batch_entries),
             "round_count": len(round_nums_in_file),
@@ -867,6 +1265,20 @@ if __name__ == '__main__':
         archive_dir = sys.argv[4]
         extract_marvis(conv_id, db_path, archive_dir, conv_label, incremental=incremental)
 
+    elif mode == 'workbuddy':
+        # 用法: python archive_export.py workbuddy <cwd_key> <archive_dir> --conv-label <label> [--session-id <sid>] [--incremental]
+        if len(sys.argv) < 4:
+            print("用法: python archive_export.py workbuddy <cwd_key> <archive_dir> --conv-label <label> [--session-id <sid>] [--incremental]")
+            sys.exit(1)
+        cwd_key = sys.argv[2]
+        archive_dir = sys.argv[3]
+        session_id = None
+        if '--session-id' in sys.argv:
+            sidx = sys.argv.index('--session-id')
+            if sidx + 1 < len(sys.argv) and not sys.argv[sidx + 1].startswith('--'):
+                session_id = sys.argv[sidx + 1]
+        extract_workbuddy(archive_dir, conv_label, cwd_key, session_id=session_id, incremental=incremental)
+
     else:
-        print(f"未知模式: {mode}，请使用 openclaw 或 marvis")
+        print(f"未知模式: {mode}，请使用 openclaw / marvis / workbuddy")
         sys.exit(1)

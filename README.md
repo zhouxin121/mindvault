@@ -11,7 +11,7 @@ MindVault 是一套**完整的 Agent 记忆与思考基础设施**，解决 AI A
 
 | 能力 | 说明 | 底层实现 |
 |------|------|---------|
-| 对话长期归档 | 增量导出对话为 JSONL，每 15 轮切割一个文件，对话隔离存储 | `archive_export.py` 从平台数据源自动提取，支持 OpenClaw + Marvis 双模 |
+| 对话长期归档 | 增量导出对话为 JSONL，每 15 轮切割一个文件，对话隔离存储 | `archive_export.py` 从平台数据源自动提取，支持 OpenClaw + Marvis + WorkBuddy 三模 |
 | 规则自动萃取 | 从历史对话中提取偏好规则和项目模式，写入 memory/FACT.md | `archive_index.py` 分析未处理归档，提取高频模式 |
 | 快速恢复上下文 | 基于三遍扫描法生成项目快照，下次对话直接继承全部背景 | S.4 三遍扫描法 → PROJECT_SNAPSHOT.md |
 | 可选五步思考 | 用户说「走流程」/「DRASV」时激活一次完整推理链路，不跳步、可审计 | DRAS-V 协议：D（定义）→ R（检索）→ A（分析）→ S（合成）→ V（验证） |
@@ -77,4 +77,4 @@ MIT License — 自由使用、修改、分发。
 
 ---
 
-*MindVault v1.1.0 · 5000+ 轮实战验证 · 跨平台 Agent 记忆基础设施*
+*MindVault v1.1.1 · 5000+ 轮实战验证 · 跨平台 Agent 记忆基础设施*

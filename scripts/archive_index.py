@@ -161,13 +161,15 @@ def cmd_search(index_dir: str, date_str: str = None, rounds_range: str = None):
             print("错误：rounds 范围格式应为 '20-40'")
             sys.exit(1)
         # 解析 export 写入的 rounds 字符串（rounds: "16-30"）
+        # P1-2 修复：区间重叠判定应为 `s <= hi and e >= lo`（含完全包含场景），
+        # 旧版 `lo <= s <= hi or lo <= e <= hi` 漏掉「目标区间完全覆盖文件区间」的情形。
         matched = []
         for f in results:
             rr = parse_rounds(f)
             if rr is None:
                 continue
             s, e = rr
-            if lo <= s <= hi or lo <= e <= hi:
+            if s <= hi and e >= lo:
                 matched.append(f)
         results = matched
 
