@@ -34,9 +34,9 @@ keywords:
   - DRAS-V
   - 思考流程
 tested:
-  date: "2026-07-14"
+  date: "2026-09-14"
   os: macOS 15.x
-  platform: OpenClaw / AutoClaw / Marvis / CherryStudio / Coze
+  platform: OpenClaw / AutoClaw / Marvis / WorkBuddy / CherryStudio / Coze
   source: 5000+ 轮实战验证，同一用户长期持续使用
 AIGC:
     Label: "1"

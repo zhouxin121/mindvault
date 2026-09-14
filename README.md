@@ -63,7 +63,7 @@ Layer 1 保险库          Layer 2 进化引擎          Layer 3 项目快照
 | `SKILL.md` | 核心指令集（DRAS-V 协议 + 三层架构），Agent 直接加载执行 |
 | `README.md` | 本文档，项目概览与快速入门 |
 | `readme1.md` | 部署指南与完整功能说明 |
-| `scripts/archive_export.py` | 对话归档导出引擎（860 行，OpenClaw + Marvis 双模支持） |
+| `scripts/archive_export.py` | 对话归档导出引擎（1284 行，OpenClaw + Marvis + WorkBuddy 三模支持） |
 | `scripts/archive_index.py` | 归档索引管理（统计 / 检索 / 摘要） |
 | `scripts/jsonl_to_md.py` | JSONL → Markdown 转换工具 |
 | `LICENSE` | MIT 开源协议 |
