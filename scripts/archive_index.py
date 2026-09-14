@@ -219,25 +219,14 @@ if __name__ == "__main__":
     elif cmd == "pending":
         cmd_pending(index_dir)
     elif cmd == "mark":
-        if not args:
-            print("用法: archive_index.py <dir> mark <filename> [--if-version <N>]")
-            sys.exit(1)
-        expect_version = None
-        filename = args[0]
-        if len(args) >= 3 and args[1] == "--if-version":
-            expect_version = int(args[2])
-        cmd_mark(index_dir, filename, expect_version)
+        print("🚫 赞赏版功能：mark。基础版支持 stats 和 pending。\n获取完整版：https://wzyp.cn/item/p0r2lb")
+        sys.exit(1)
     elif cmd == "search":
-        # 参数二选一：--rounds <A-B>（轮次范围）或 <date>（单一日期）
-        date_str = None
-        rounds_range = None
-        if args and args[0] == "--rounds":
-            rounds_range = args[1]
-        else:
-            date_str = args[0] if args else None
-        cmd_search(index_dir, date_str, rounds_range)
+        print("🚫 赞赏版功能：search。基础版支持 stats 和 pending。\n获取完整版：https://wzyp.cn/item/p0r2lb")
+        sys.exit(1)
     elif cmd == "summary":
-        cmd_summary(index_dir)
+        print("🚫 赞赏版功能：summary。基础版支持 stats 和 pending。\n获取完整版：https://wzyp.cn/item/p0r2lb")
+        sys.exit(1)
     else:
         print(f"未知子命令: {cmd}")
         sys.exit(1)

@@ -145,40 +145,23 @@ def render_jsonl(filepath: str, style: str = "minimal") -> str:
 
 
 def main():
+    print("📖 MindVault 基础版：仅 minimal 模式。完整功能见赞赏版：https://wzyp.cn/item/p0r2lb")
+
     import argparse
     parser = argparse.ArgumentParser(description="JSONL 归档 → Markdown 阅读器")
     parser.add_argument("jsonl_file", help="JSONL 归档文件路径")
-    parser.add_argument("--style", choices=["minimal", "full"], default="minimal",
-                        help="渲染风格：minimal=仅用户+Agent，full=全部角色")
+    parser.add_argument("--style", choices=["minimal"], default="minimal",
+                        help="渲染风格：minimal=仅用户+Agent（基础版）")
     parser.add_argument("--output", "-o", help="输出 Markdown 文件路径")
-    parser.add_argument("--css", help="CSS 模板文件路径（输出 HTML）")
+    # --css 为赞赏版功能
     args = parser.parse_args()
 
     md = render_jsonl(args.jsonl_file, style=args.style)
 
     if args.output:
         out_path = Path(args.output)
-        if args.css:
-            css_content = Path(args.css).read_text(encoding="utf-8")
-            html = f"""<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>对话归档 — {Path(args.jsonl_file).stem}</title>
-<style>
-{css_content}
-</style>
-</head>
-<body>
-<div class="conversation">
-{md.replace(chr(10), chr(10)+"  ")}
-</div>
-</body>
-</html>"""
-            out_path.write_text(html, encoding="utf-8")
-        else:
-            out_path.write_text(md, encoding="utf-8")
+        # --css HTML 输出为赞赏版功能
+        out_path.write_text(md, encoding="utf-8")
         print(f"已写入: {out_path}")
     else:
         print(md)

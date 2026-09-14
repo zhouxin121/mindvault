@@ -1,3 +1,10 @@
+## [1.1.2] - 2026-09-15
+- 恢复双版本拆分：以 v1.1.1 完整版为基线派生**基础版（免费）**，函数体不重写，仅施加 4 类锁定
+- archive_index.py：锁定 mark/search/summary 三命令（print 赞赏提示 + sys.exit(1)），基础版保留 stats/pending
+- jsonl_to_md.py：--style 仅允许 minimal；--css 注释移除；保留 minimal 渲染全链路
+- SKILL.md / _meta.json：版本统一至 1.1.2，注明基础版能力边界与赞赏版获取方式（https://wzyp.cn/item/p0r2lb）
+- archive_export.py：无差异，三模归档 + 增量合并全量开放
+
 ## [1.1.1] - 2026-09-14
 - **archive_export.py（P0-1 修复）**：OpenClaw 模式新增独立 `role == 'toolResult'` 分支——现代 OpenClaw 格式 toolResult 为独立消息（含 toolCallId/toolName/content/isError），旧版仅在 assistant 内嵌套处理导致独立消息整条丢失；现按 toolCallId 精确匹配/无 id 按 toolName 匹配待配对 toolCall，调用 process_tool 写出
 - **archive_export.py（P0-2 修复）**：OpenClaw/Marvis 模式 toolCall 参数读取改为优先 `arguments`（OpenClaw 真实字段，可含 partialArgs 流式增量层），兼容旧 `args`/`input`；修复此前恒读空导致 49.1% 工具参数数据损失

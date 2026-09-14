@@ -62,12 +62,14 @@ Layer 1 保险库          Layer 2 进化引擎          Layer 3 项目快照
 |------|------|
 | `SKILL.md` | 核心指令集（DRAS-V 协议 + 三层架构），Agent 直接加载执行 |
 | `README.md` | 本文档，项目概览与快速入门 |
-| `readme1.md` | 部署指南与完整功能说明 |
-| `scripts/archive_export.py` | 对话归档导出引擎（1284 行，OpenClaw + Marvis + WorkBuddy 三模支持） |
-| `scripts/archive_index.py` | 归档索引管理（统计 / 检索 / 摘要） |
-| `scripts/jsonl_to_md.py` | JSONL → Markdown 转换工具 |
+| `scripts/archive_export.py` | 对话归档导出引擎（OpenClaw + Marvis + WorkBuddy 三模支持） |
+| `scripts/archive_index.py` | 归档索引管理（基础版：统计 / 待处理列表） |
+| `scripts/jsonl_to_md.py` | JSONL → Markdown 转换工具（基础版：minimal 模式） |
 | `LICENSE` | MIT 开源协议 |
 | `CHANGELOG.md` | 版本更新记录 |
+
+> 本包为 MindVault 基础版（免费）：archive_index 的 mark/search/summary、jsonl_to_md 的 full/--css 为赞赏版功能。
+> 赞赏版（完整版）获取：https://wzyp.cn/item/p0r2lb
 
 ---
 
@@ -77,4 +79,4 @@ MIT License — 自由使用、修改、分发。
 
 ---
 
-*MindVault v1.1.1 · 5000+ 轮实战验证 · 跨平台 Agent 记忆基础设施*
+*MindVault v1.1.2 · 基础版免费发布 · 5000+ 轮实战验证 · 跨平台 Agent 记忆基础设施*

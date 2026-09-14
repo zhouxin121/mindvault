@@ -1,22 +1,22 @@
 {
   "name": "mindvault",
-  "version": "1.1.1",
-  "date": "2026-09-14",
+  "version": "1.1.2",
+  "date": "2026-09-15",
   "category": "memory",
   "platforms": ["openclaw", "autoclaw", "marvis", "workbuddy", "cherrystudio", "coze"],
   "tested_date": "2026-09-14",
   "tested_rounds": "5000+",
   "pricing": {
     "mode": "free",
-    "free": "完整版全量开放：三脚本全部能力（stats/pending/mark/search/summary、minimal/full/--css、OpenClaw+Marvis+WorkBuddy 三模归档+增量合并）+ DRAS-V 五步协议 + 三层架构，无功能阉割",
-    "note": "v1.1.0 起不再区分免费版/赞赏版，统一为完整版发布；v1.1.1 修复 P0/P1 缺陷并整合 WorkBuddy 原生会话机制"
+    "free": "基础版：archive_index 支持 stats/pending（mark/search/summary 为赞赏功能）；jsonl_to_md 仅 minimal 模式（full/--css 为赞赏功能）；archive_export 三模归档+增量合并全量开放；DRAS-V 协议 + 三层架构完整可用",
+    "note": "v1.1.2 恢复双版本拆分：基础版免费发布 GitHub（本包）；赞赏版（完整全部命令）见 https://wzyp.cn/item/p0r2lb"
   },
   "dependencies": {
     "python": "3.10+",
     "sqlite3": "系统内置"
   },
   "keywords": {
-    "zh": ["对话归档", "对话备份", "长期记忆", "规则萃取", "自动进化", "项目快照", "DRAS-V", "思考流程", "自检循环", "搜索前置", "多Agent", "数据资产", "记忆系统"],
+    "zh": ["对话归档", "对话备份", "长期记忆", "规则萃取", "项目快照", "DRAS-V", "思考流程", "自检循环", "搜索前置", "多Agent", "数据资产", "记忆系统"],
     "en": ["mindvault", "conversation-archiver", "longterm-memory", "memory-evolution", "rule-extraction", "project-snapshot", "DRAS-V", "thinking-protocol", "self-check-loop", "search-first", "multi-agent", "data-sovereignty"]
   }
 }

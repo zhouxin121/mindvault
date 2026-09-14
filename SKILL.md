@@ -5,7 +5,7 @@ description: >
   提供对话备份(JSONL)+规则萃取+项目快照三层记忆能力，以及DRAS-V五步思考辅助协议。
   5000+轮实战验证，跨平台(OpenClaw/Marvis/WorkBuddy/CherryStudio/Coze)。所有数据本地存储，不上传云端。
   Use when user says 对话备份、对话归档、归档对话、执行进化引擎、生成项目快照、走流程、DRASV。
-version: 1.1.1
+version: 1.1.2
 author: zhouxin121
 license: MIT
 category: memory
