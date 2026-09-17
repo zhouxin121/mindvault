@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-"""MindVault — JSONL → Markdown（完整版）
+"""MindVault — JSONL → Markdown（基础版 · 免费）
 
 用法：
-  python jsonl_to_md.py <jsonl_file> [--style minimal|full] [--output <md_file>]
-  python jsonl_to_md.py <jsonl_file> --css <css_template_file>
+  python jsonl_to_md.py <jsonl_file> [--style minimal] [--output <md_file>]
 
 默认输出到 stdout，--output 写入文件。
---style minimal：仅用户+Agent 消息（默认）
---style full：全部角色（system/tool/scheduled）
---css：可选 HTML+CSS 输出模板（将 Markdown 嵌入 HTML 模板）
+--style minimal：仅用户+Agent 消息（默认，也是基础版唯一可用模式）
+--style full / --css HTML 模板输出：赞赏版功能（获取：https://wzyp.cn/item/p0r2lb）
 """
 
 import json

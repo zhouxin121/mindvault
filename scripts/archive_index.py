@@ -1,28 +1,25 @@
 #!/usr/bin/env python3
-"""MindVault — _index.json 管理工具（完整版）
+"""MindVault — _index.json 管理工具（基础版 · 免费）
 
-完整版命令：stats, pending, mark, search, summary
+基础版命令：stats, pending
+赞赏版追加：mark, search, summary（获取：https://wzyp.cn/item/p0r2lb）
 
 子命令：
   stats      — 统计：文件数 / 总条目 / 轮次 / processed 比例
   pending    — 列出 processed=false 的文件
-  mark       — 将指定文件标记为 processed=true（写入前做 if_version 读前校验）
-  search     — 按日期/轮次范围搜索文件
-  summary    — 输出 JSON 摘要（供 Agent 消费）
+  mark       — （赞赏版）将指定文件标记为 processed=true，写入前做 if_version 读前校验
+  search     — （赞赏版）按日期/轮次范围搜索文件
+  summary    — （赞赏版）输出 JSON 摘要（供 Agent 消费）
 
-写入纪律（B9/B15）：
+写入纪律（B9/B15，适用于写入类操作）：
   - 写入类操作（mark）必须先确认 _index.json 存在（不存在即异常），
     禁止在索引缺失时静默创建或静默返回空。
   - 每次写索引 index_version +1，作为乐观版本令牌；
     并发/多端写入前应先读取并核对 version，避免覆盖他人写入。
 
-用法：
+用法（基础版）：
   python archive_index.py <archive_dir> stats
   python archive_index.py <archive_dir> pending
-  python archive_index.py <archive_dir> mark "chat_20260703_rounds-16-30.jsonl"
-  python archive_index.py <archive_dir> search 2026-07-03
-  python archive_index.py <archive_dir> search --rounds 20-40
-  python archive_index.py <archive_dir> summary
 """
 
 import json
