@@ -6,6 +6,7 @@
 - **_meta.json**：版本升至 1.1.3；新增 `slug` / `display_name` / `tested_evidence` / `links` 字段；keywords 中英文均按搜索意图重排
 - **doc 修正（不动函数体）**：`archive_index.py`、`jsonl_to_md.py` 模块 docstring 中残留的"（完整版）"及完整版命令清单改为"（基础版 · 免费）"+ 实际可用命令（archive_index 的 usage 由 `print(__doc__)` 输出，此修正同时修正了运行时的帮助文本）
 - 完整版（赞赏版 v1.1.1）不受本次改造影响，未做任何修改
+- `LICENSE` 重命名为 `LICENSE.md` 并补全 MIT 协议全文（SkillHub 不接受无扩展名文件；GitHub 同样识别 LICENSE.md）
 
 ## [1.1.2] - 2026-09-15
 - 恢复双版本拆分：以 v1.1.1 完整版为基线派生**基础版（免费）**，函数体不重写，仅施加 4 类锁定

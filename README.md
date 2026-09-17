@@ -81,7 +81,7 @@ Layer 1 对话归档            Layer 2 规则萃取            Layer 3 项目�
 | `scripts/archive_export.py` | 对话归档导出引擎（OpenClaw / Marvis / WorkBuddy 三模 + 增量合并） |
 | `scripts/archive_index.py` | 归档索引管理（基础版：stats / pending） |
 | `scripts/jsonl_to_md.py` | JSONL → Markdown 转换（基础版：minimal 模式） |
-| `LICENSE` | MIT 开源协议 |
+| `LICENSE.md` | MIT 开源协议 |
 | `CHANGELOG.md` | 版本更新记录 |
 
 ---
