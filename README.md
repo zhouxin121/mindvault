@@ -81,6 +81,7 @@ Layer 1 对话归档            Layer 2 规则萃取            Layer 3 项目�
 | `scripts/archive_export.py` | 对话归档导出引擎（OpenClaw / Marvis / WorkBuddy 三模 + 增量合并） |
 | `scripts/archive_index.py` | 归档索引管理（基础版：stats / pending） |
 | `scripts/jsonl_to_md.py` | JSONL → Markdown 转换（基础版：minimal 模式） |
+| `scripts/snapshot_sync_check.py` | 双文档联动核账校验（PROJECT_SNAPSHOT.md / PROJECT.md 六维比对，基础版免费开放） |
 | `LICENSE.md` | MIT 开源协议 |
 | `CHANGELOG.md` | 版本更新记录 |
 
@@ -92,6 +93,7 @@ Layer 1 对话归档            Layer 2 规则萃取            Layer 3 项目�
 - **会越来越慢吗？** 归档是只增不改，读取性能取决于分片数量；68 文件规模下索引统计 0.07 秒。
 - **能按日期或轮次检索归档吗？** `mark` / `search` / `summary` 与 `--style full`、`--css` 为基础版之外的赞赏版功能，基础版开放 `stats`、`pending` 与 `minimal` 渲染。
 - **换平台后历史还能用吗？** 能，带上 `archive/` 目录即可继续增量归档。
+- **快照双文档（PROJECT_SNAPSHOT.md / PROJECT.md）会不会写着写着不同步？** 已内置防断裂规范：更新日志逐条比对、章节正文双向回改互检、头部元数据强制刷新，并要求联动完成后运行 `scripts/snapshot_sync_check.py` 做六维核账（退出码非 0 即存在断裂）。
 
 ---
 
@@ -117,4 +119,4 @@ Layer 1 对话归档            Layer 2 规则萃取            Layer 3 项目�
 
 ---
 
-*MindVault v1.1.3 · 基础版免费发布 · 5000+ 轮实战验证 · 跨平台 Agent 对话归档与记忆基础设施*
+*MindVault v1.2.2 · 基础版免费发布 · 5000+ 轮实战验证 · 跨平台 Agent 对话归档与记忆基础设施*

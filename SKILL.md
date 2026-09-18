@@ -3,7 +3,7 @@ name: mindvault
 slug: mindvault
 displayName: MindVault 思维永生
 display_name: MindVault 思维永生
-version: "1.1.3"
+version: "1.2.2"
 description: "把 Agent 对话归档成可检索的本地 JSONL（每 15 轮一分片），从历史对话萃取规则、生成项目快照、快速恢复上下文；纯本地存储、用户主动触发，输出 archive/*.jsonl + FACT.md + PROJECT_SNAPSHOT.md"
 display_description: "MindVault 对话归档与记忆进化引擎（基础版免费）：对话增量备份为 JSONL、长期规则萃取、项目快照生成、可选 DRAS-V 五步思考协议。支持 OpenClaw / AutoClaw / Marvis / WorkBuddy / CherryStudio / Coze，数据全部保存在本地。"
 keywords:
@@ -43,7 +43,7 @@ permissions:
   - write
   - exec
 tested:
-  date: "2026-09-17"
+  date: "2026-09-18"
   os: macOS 15.8
   python: "python3（系统内置，无需 pip 依赖）"
   platforms: OpenClaw / AutoClaw / Marvis / WorkBuddy / CherryStudio / Coze
@@ -179,6 +179,17 @@ Layer 1 对话归档            Layer 2 规则萃取            Layer 3 项目�
 - **Layer 2 触发词**：「执行进化引擎」「从对话中萃取规则」。从归档中提取规律并标注置信度（推测 / 确认 / 反复验证），写入记忆通道；写入前先 read 合并已有内容，不整文件覆写。
 - **Layer 3 触发词**：「生成项目快照」。产出 `PROJECT_SNAPSHOT.md` + `PROJECT.md`；快照生成必须走三遍扫描法（多组关键词扫描 → 时间线交叉验证 → 合成标注），禁用单遍扫描。
 
+**Layer 3 双文档联动与核账校验（强制）**
+
+`PROJECT_SNAPSHOT.md` 为唯一真相源，`PROJECT.md` 为详细派生版，冲突一律以快照为准。仅靠"改后同步对端 + diff 关键字段"不足以防断裂——实测断裂：更新日志条数不等（27 vs 31）、同日期条目重复、同日期文本漂移、章节正文残留旧事实（快照仍写 v1.0.1）。关键字段 diff 通过 ≠ 真正同步。联动更新必须逐项满足：
+
+1. **更新日志逐条比对**：两文档条数相同；逐条「日期 + 主题」逐字一致；两文档均严格倒序（日期非递增）。
+2. **章节正文双向回改互检**：任一章节正文改动后，必须回改对端并互检，非预期行级差异清零（第十五章等已登记的有意精简除外）。
+3. **头部元数据强制刷新**：数据来源 / 生成方式 / 生成日期 / 最近更新日期四项，两文档必须一致。
+4. **联动完成后必须运行校验脚本并附输出**：
+   `python3 scripts/snapshot_sync_check.py --snapshot PROJECT_SNAPSHOT.md --detail PROJECT.md`
+   退出码非 0 即存在断裂，禁止在断裂清零前结束联动更新。该脚本纯标准库实现，基础版免费开放（不加锁）。
+
 ---
 
 ## 五、DRAS-V 五步思考辅助协议（可选）
@@ -202,6 +213,7 @@ Layer 1 对话归档            Layer 2 规则萃取            Layer 3 项目�
 | `archive_export.py` | 三模归档 + 增量合并，**全量开放** | 同基础版 |
 | `archive_index.py` | `stats`、`pending` | 追加 `mark`、`search`、`summary` |
 | `jsonl_to_md.py` | `--style minimal` | 追加 `--style full`、`--css` HTML 模板 |
+| `snapshot_sync_check.py` | 双文档联动六维核账校验，**免费开放不锁** | 同基础版（同样开放） |
 | SKILL.md 协议层 | DRAS-V 协议 + 三层架构，**完整可用** | 同基础版 |
 
 > 赞赏版（完整版）获取：https://wzyp.cn/item/p0r2lb
@@ -244,6 +256,8 @@ Layer 1 对话归档            Layer 2 规则萃取            Layer 3 项目�
 | 8 | 简单任务被套上五步流程 | 未判断 Step 0 | 在 Step 0 豁免清单中补该类任务 |
 | 9 | 回复开头没有检测短语 | 确认短语被挤出或未设定 | 短语默认关闭；若要启用，检查设定是否被清除 |
 | 10 | 归档目录下多出一份重复对话 | `--conv-label` 前后不一致 | 统一标签后重新增量归档，手工合并两个子目录 |
+| 11 | 两文档更新日志条数不一致 / 同日期条目重复 | 只做增量同步，未做存量核账 | 按 Layer 3 双文档联动规范逐条比对；运行 `scripts/snapshot_sync_check.py` 定位差异并补齐合并 |
+| 12 | 章节正文改了，另一文件没改 | 章节正文单向更新 | 双向回改互检，非预期行级差异清零后，再运行校验脚本确认 |
 
 ---
 
@@ -284,12 +298,12 @@ concrete_values:
   output: archive/<label>/chat_*.jsonl, archive/<label>/_index.json, memory/FACT.md, PROJECT_SNAPSHOT.md
   commands: 归档对话 / 执行进化引擎 / 生成项目快照 / 走流程 / DRASV 自检
   split_rule: 每 15 轮一个分片
-failure_paths: 10
+failure_paths: 12
 tools_available: yes（纯 Python 标准库，无第三方依赖）
 time_to_first_value: 约 10 分钟（首次全量归档 + 一次 stats）
 trust_signals:
-  tested: 5000+ 轮实战验证；68 文件 / 14,949 条目 / 0.07s 索引实测
-  tested_date: 2026-09-17
+  tested: 5000+ 轮实战验证；68 文件 / 14,949 条目 / 0.07s 索引实测；双文档核账脚本实跑通过
+  tested_date: 2026-09-18
   platforms: OpenClaw / AutoClaw / Marvis / WorkBuddy / CherryStudio / Coze
   authored_by_tester: true
   license: MIT
@@ -308,8 +322,9 @@ pricing: 基础版免费（本包）；赞赏版提供 mark/search/summary 与 f
 | `scripts/archive_export.py` | 对话归档导出（openclaw / marvis / workbuddy 三模 + 增量合并） |
 | `scripts/archive_index.py` | 归档索引管理（基础版：stats / pending） |
 | `scripts/jsonl_to_md.py` | JSONL → Markdown 转换（基础版：minimal 模式） |
+| `scripts/snapshot_sync_check.py` | 双文档联动核账校验（六维比对，基础版免费开放） |
 | `CHANGELOG.md` | 版本迭代记录 |
-| `LICENSE` | MIT 开源协议 |
+| `LICENSE.md` | MIT 开源协议 |
 
 ---
 
@@ -335,6 +350,7 @@ pricing: 基础版免费（本包）；赞赏版提供 mark/search/summary 与 f
 
 | 日期 | 版本 | 变更 |
 |------|------|------|
+| 2026-09-18 | v1.2.2 | 双文档联动断裂修复（与完整版 v1.2.1 同步）：SKILL.md Layer 3 增补「双文档联动与核账校验」强制规范（更新日志逐条比对 / 章节正文双向回改互检 / 头部元数据强制刷新 / 联动后必须运行校验脚本）；新增 `scripts/snapshot_sync_check.py` 六维核账校验（纯标准库，免费开放不锁）；故障排查由 10 条扩充至 12 条；README / CHANGELOG / _meta.json 同步更新；锁 4 口策略与三脚本函数体保持不变 |
 | 2026-09-17 | v1.1.3 | 按 GEO/可信度优化思路改造基础版：description 前 128 字符改写为核心功能 + 参数 + 输出物；keywords 前置搜索意图词；核心用法前置到前 500 字；新增 FAQ 6 条、实测数据表、时间成本预估、跨平台互链；正文命令与参数按实际运行输出校对 |
 | 2026-09-15 | v1.1.2 | 以 v1.1.1 完整版为基线派生基础版（免费）：archive_index 锁定 mark/search/summary，jsonl_to_md 限 minimal，archive_export 全量开放 |
 | 2026-09-14 | v1.1.1 | 归档导出修复：独立 toolResult 分支、工具参数优先读 `arguments`、增量命名用实际轮次范围；新增 WorkBuddy 模式 |
@@ -347,4 +363,4 @@ pricing: 基础版免费（本包）；赞赏版提供 mark/search/summary 与 f
 - **作者**：周老板（zhouxin121），者琥科技
 - **开源协议**：MIT License — 自由使用、修改、分发
 - **项目主页**：https://github.com/zhouxin121/mindvault
-- **最后更新**：2026-09-17 · v1.1.3（基础版 · 免费）
+- **最后更新**：2026-09-18 · v1.2.2（基础版 · 免费）
