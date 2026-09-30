@@ -1,4 +1,6 @@
-# MindVault 思维永生 — Agent 对话归档与记忆进化引擎
+# MindVault 思维永生
+> 📦 **一键安装**：[ClawHub 页面](https://clawhub.ai/zhouxin121/skills/mindvault-agent-memory) · OpenClaw 用户搜索 `mindvault-agent-memory` 直接装
+ — Agent 对话归档与记忆进化引擎
 
 > **把你的 Agent 对话存成可检索的本地 JSONL，从历史里萃取规则，新会话不用再从零讲背景。**
 > 5000+ 轮实战验证 · 纯本地存储 · 输出 `archive/*.jsonl` + `memory/FACT.md` + `PROJECT_SNAPSHOT.md` · MIT 开源
