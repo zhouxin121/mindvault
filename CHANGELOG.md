@@ -1,3 +1,8 @@
+## [1.2.4] - 2026-09-30
+
+### Changed
+- skillhub/ClawHub 搜索描述关键词化：前 100 字意图词命中 3→8（记忆×2/备份/换电脑/AI 失忆/Claude/WorkBuddy/归档），skill 逻辑零改动
+
 ## [1.2.3] - 2026-09-29
 
 ### Changed

@@ -3,8 +3,8 @@ name: mindvault
 slug: mindvault
 displayName: MindVault 思维永生
 display_name: MindVault 思维永生
-version: "1.2.3"
-description: "Agent 记忆与长期记忆管理：对话归档成可检索的本地 JSONL（每 15 轮一分片），从历史对话萃取规则、生成项目快照，防止换会话失忆、忘记关键上下文；纯本地存储、用户主动触发，支持记忆备份与上下文恢复，输出 archive/*.jsonl + FACT.md + PROJECT_SNAPSHOT.md"
+version: "1.2.4"
+description: "Agent 记忆与长期记忆管理：对话备份归档成本地 JSONL，防 AI 失忆——换电脑、换会话都不丢记忆；从历史萃取规则生成快照，支持 Claude Code / WorkBuddy / OpenClaw 等本地框架，纯标准库"
 display_description: "MindVault 对话归档与记忆进化引擎（基础版免费）：对话增量备份为 JSONL、长期规则萃取、项目快照生成、可选 DRAS-V 五步思考协议。支持 OpenClaw / AutoClaw / Marvis / WorkBuddy / CherryStudio / Coze，数据全部保存在本地。"
 keywords:
   - memory
