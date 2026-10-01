@@ -2,7 +2,7 @@
 """MindVault — _index.json 管理工具（基础版 · 免费）
 
 基础版命令：stats, pending
-赞赏版追加：mark, search, summary（获取：https://wzyp.cn/item/p0r2lb）
+更多命令（mark / search / summary）需按版本核对，对照表见【JINENGPU_URL_待填】
 
 子命令：
   stats      — 统计：文件数 / 总条目 / 轮次 / processed 比例
@@ -216,13 +216,13 @@ if __name__ == "__main__":
     elif cmd == "pending":
         cmd_pending(index_dir)
     elif cmd == "mark":
-        print("🚫 赞赏版功能：mark。基础版支持 stats 和 pending。\n获取完整版：https://wzyp.cn/item/p0r2lb")
+        print("mark 需按版本核对（对照表见【JINENGPU_URL_待填】）；本包开放 stats / pending")
         sys.exit(1)
     elif cmd == "search":
-        print("🚫 赞赏版功能：search。基础版支持 stats 和 pending。\n获取完整版：https://wzyp.cn/item/p0r2lb")
+        print("search 需按版本核对（对照表见【JINENGPU_URL_待填】）；本包开放 stats / pending")
         sys.exit(1)
     elif cmd == "summary":
-        print("🚫 赞赏版功能：summary。基础版支持 stats 和 pending。\n获取完整版：https://wzyp.cn/item/p0r2lb")
+        print("summary 需按版本核对（对照表见【JINENGPU_URL_待填】）；本包开放 stats / pending")
         sys.exit(1)
     else:
         print(f"未知子命令: {cmd}")

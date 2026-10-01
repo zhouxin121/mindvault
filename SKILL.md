@@ -3,7 +3,7 @@ name: mindvault
 slug: mindvault
 displayName: MindVault 思维永生
 display_name: MindVault 思维永生
-version: "1.2.4"
+version: "1.2.5"
 description: "Agent 记忆与长期记忆管理：对话备份归档成本地 JSONL，防 AI 失忆——换电脑、换会话都不丢记忆；从历史萃取规则生成快照，支持 Claude Code / WorkBuddy / OpenClaw 等本地框架，纯标准库"
 display_description: "MindVault 对话归档与记忆进化引擎（基础版免费）：对话增量备份为 JSONL、长期规则萃取、项目快照生成、可选 DRAS-V 五步思考协议。支持 OpenClaw / AutoClaw / Marvis / WorkBuddy / CherryStudio / Coze，数据全部保存在本地。"
 keywords:
@@ -39,6 +39,7 @@ license: MIT
 category: memory
 platforms:
   - openclaw
+  - claudecode
   - autoclaw
   - marvis
   - workbuddy
@@ -152,7 +153,7 @@ python3 archive_index.py <归档目录> stats      # 统计：文件数 / 总条
 python3 archive_index.py <归档目录> pending    # 列出 processed=false 的文件
 ```
 
-基础版开放 `stats`、`pending` 两个只读子命令；`mark`、`search`、`summary` 属赞赏版功能，调用时会提示并退出（退出码 1）。
+基础版开放 `stats`、`pending` 两个只读子命令；`mark`、`search`、`summary` 需按版本核对（对照表见【JINENGPU_URL_待填】），调用时会提示并退出（退出码 1）。
 
 ### 3.3 `scripts/jsonl_to_md.py` — JSONL 转 Markdown
 
@@ -163,7 +164,7 @@ python3 jsonl_to_md.py <jsonl文件> [--style minimal] [--output <输出md路径
 | 参数 | 说明 |
 |------|------|
 | `<jsonl文件>` | 归档分片路径，如 `archive/<对话标签>/chat_20260703_rounds-16-30.jsonl` |
-| `--style minimal` | 可选（默认）。只渲染用户与 Agent 消息；full 渲染属赞赏版 |
+| `--style minimal` | 可选（默认）。只渲染用户与 Agent 消息；full 渲染需按版本核对（对照表见【JINENGPU_URL_待填】） |
 | `--output <输出md路径>`，简写 `-o` | 可选。缺省输出到 stdout，可重定向到文件 |
 
 ---
@@ -214,15 +215,15 @@ Layer 1 对话归档            Layer 2 规则萃取            Layer 3 项目�
 
 ## 六、基础版能力边界（免费）
 
-| 组件 | 基础版（本包，免费） | 赞赏版（完整版） |
+| 组件 | 基础版（本包，免费） | 赞赏版 |
 |------|-------------------|-----------------|
 | `archive_export.py` | 三模归档 + 增量合并，**全量开放** | 同基础版 |
 | `archive_index.py` | `stats`、`pending` | 追加 `mark`、`search`、`summary` |
-| `jsonl_to_md.py` | `--style minimal` | 追加 `--style full`、`--css` HTML 模板 |
+| `jsonl_to_md.py` | `--style minimal` | 可选（默认）。只渲染用户与 Agent 消息；full 渲染需按版本核对（对照表见【JINENGPU_URL_待填】） |
 | `snapshot_sync_check.py` | 双文档联动六维核账校验，**免费开放不锁** | 同基础版（同样开放） |
 | SKILL.md 协议层 | DRAS-V 协议 + 三层架构，**完整可用** | 同基础版 |
 
-> 赞赏版（完整版）获取：https://wzyp.cn/item/p0r2lb
+> 更多命令的对照表见【JINENGPU_URL_待填】。
 
 ---
 
@@ -288,6 +289,7 @@ Layer 1 对话归档            Layer 2 规则萃取            Layer 3 项目�
 | OpenClaw / AutoClaw | `sessions/*.jsonl` | `memory/FACT.md` + `AGENTS.md` | `openclaw` | ✅ |
 | Marvis | `data.db`（SQLite） | `user_preference_rules` | `marvis` | ✅ |
 | WorkBuddy | `~/.workbuddy/projects/<cwd_key>/*.jsonl` | `FACT.md` | `workbuddy` | ✅ |
+| Claude Code | `~/.claude/projects/**/*.jsonl` | `FACT.md` | `claudecode`（规划中） | 🔧 |
 | CherryStudio | `agents/*/sessions/` | `FACT.md` | `openclaw` | ✅ |
 | Coze | API 拉取 | 知识库 | 手动导出后归档 | ✅ |
 
@@ -314,7 +316,7 @@ trust_signals:
   authored_by_tester: true
   license: MIT
 data_storage: 本地 archive/ 目录，不上传云端；用户主动触发，无后台静默写入
-pricing: 基础版免费（本包）；赞赏版提供 mark/search/summary 与 full/--css 渲染
+pricing: 本包免费；更多命令（mark/search/summary、full/--css 渲染）对照表见【JINENGPU_URL_待填】
 ```
 
 ---
@@ -356,9 +358,9 @@ pricing: 基础版免费（本包）；赞赏版提供 mark/search/summary 与 f
 
 | 日期 | 版本 | 变更 |
 |------|------|------|
-| 2026-09-18 | v1.2.2 | 双文档联动断裂修复（与完整版 v1.2.1 同步）：SKILL.md Layer 3 增补「双文档联动与核账校验」强制规范（更新日志逐条比对 / 章节正文双向回改互检 / 头部元数据强制刷新 / 联动后必须运行校验脚本）；新增 `scripts/snapshot_sync_check.py` 六维核账校验（纯标准库，免费开放不锁）；故障排查由 10 条扩充至 12 条；README / CHANGELOG / _meta.json 同步更新；锁 4 口策略与三脚本函数体保持不变 |
+| 2026-09-18 | v1.2.2 | 双文档联动断裂修复（与赞赏版 v1.2.1 同步）：SKILL.md Layer 3 增补「双文档联动与核账校验」强制规范（更新日志逐条比对 / 章节正文双向回改互检 / 头部元数据强制刷新 / 联动后必须运行校验脚本）；新增 `scripts/snapshot_sync_check.py` 六维核账校验（纯标准库，免费开放不锁）；故障排查由 10 条扩充至 12 条；README / CHANGELOG / _meta.json 同步更新；锁 4 口策略与三脚本函数体保持不变 |
 | 2026-09-17 | v1.1.3 | 按 GEO/可信度优化思路改造基础版：description 前 128 字符改写为核心功能 + 参数 + 输出物；keywords 前置搜索意图词；核心用法前置到前 500 字；新增 FAQ 6 条、实测数据表、时间成本预估、跨平台互链；正文命令与参数按实际运行输出校对 |
-| 2026-09-15 | v1.1.2 | 以 v1.1.1 完整版为基线派生基础版（免费）：archive_index 锁定 mark/search/summary，jsonl_to_md 限 minimal，archive_export 全量开放 |
+| 2026-09-15 | v1.1.2 | 以 v1.1.1 赞赏版为基线派生基础版（免费）：archive_index 锁定 mark/search/summary，jsonl_to_md 限 minimal，archive_export 全量开放 |
 | 2026-09-14 | v1.1.1 | 归档导出修复：独立 toolResult 分支、工具参数优先读 `arguments`、增量命名用实际轮次范围；新增 WorkBuddy 模式 |
 | 2026-07-14 | v1.0.0 | 首次发布：MindVault 思维永生系统，5000+ 轮实战验证 |
 
@@ -369,4 +371,4 @@ pricing: 基础版免费（本包）；赞赏版提供 mark/search/summary 与 f
 - **作者**：周老板（zhouxin121），者琥科技
 - **开源协议**：MIT License — 自由使用、修改、分发
 - **项目主页**：https://github.com/zhouxin121/mindvault
-- **最后更新**：2026-09-18 · v1.2.2（基础版 · 免费）
+- **最后更新**：2026-10-02 · v1.2.5（免费）

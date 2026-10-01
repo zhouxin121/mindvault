@@ -6,7 +6,7 @@
 
 默认输出到 stdout，--output 写入文件。
 --style minimal：仅用户+Agent 消息（默认，也是基础版唯一可用模式）
---style full / --css HTML 模板输出：赞赏版功能（获取：https://wzyp.cn/item/p0r2lb）
+--style full / --css HTML 模板输出需按版本核对，对照表见【JINENGPU_URL_待填】
 """
 
 import json
@@ -143,22 +143,38 @@ def render_jsonl(filepath: str, style: str = "minimal") -> str:
 
 
 def main():
-    print("📖 MindVault 基础版：仅 minimal 模式。完整功能见赞赏版：https://wzyp.cn/item/p0r2lb")
-
     import argparse
     parser = argparse.ArgumentParser(description="JSONL 归档 → Markdown 阅读器")
     parser.add_argument("jsonl_file", help="JSONL 归档文件路径")
     parser.add_argument("--style", choices=["minimal"], default="minimal",
-                        help="渲染风格：minimal=仅用户+Agent（基础版）")
+                        help="渲染风格：minimal=仅用户+Agent 消息")
     parser.add_argument("--output", "-o", help="输出 Markdown 文件路径")
-    # --css 为赞赏版功能
     args = parser.parse_args()
 
     md = render_jsonl(args.jsonl_file, style=args.style)
 
+    # 中性提示（留针不留墙）：统计未被 minimal 渲染的消息数，N=0 不打印
+    if args.style == "minimal":
+        try:
+            tool_n = 0
+            with open(args.jsonl_file, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        entry = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    if entry.get("role") not in ("user", "agent"):
+                        tool_n += 1
+            if tool_n:
+                print(f"本分片含 {tool_n} 条工具调用记录，当前渲染仅显示用户 / Agent 消息（对照表见【JINENGPU_URL_待填】）")
+        except OSError:
+            pass
+
     if args.output:
         out_path = Path(args.output)
-        # --css HTML 输出为赞赏版功能
         out_path.write_text(md, encoding="utf-8")
         print(f"已写入: {out_path}")
     else:

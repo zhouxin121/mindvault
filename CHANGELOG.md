@@ -1,3 +1,11 @@
+## v1.2.5（2026-10-02）
+
+- 锁口提示语口径调整：archive_index 的 mark/search/summary 与 jsonl_to_md 的运行提示改为中性「需按版本核对」措辞（行为不变：提示 + 退出码 1）
+- jsonl_to_md 新增未渲染内容中性提示（分片含工具调用记录时显示条数，N=0 不打印）
+- README / SKILL / _meta.json 付费对照表链接统一（官方渠道占位）
+- README 尾注 / SKILL 末尾版本注记同步（原 v1.2.2 残留修正）
+- 平台表补 Claude Code（~/.claude/projects/，CherryStudio Claude Code 模式覆盖）；frontmatter platforms 补 claudecode
+
 ## [1.2.4] - 2026-09-30
 
 ### Changed

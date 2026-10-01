@@ -93,7 +93,7 @@ Layer 1 对话归档            Layer 2 规则萃取            Layer 3 项目�
 
 - **会上传云端吗？** 不会，所有文件只写本地 `archive/` 目录；归档/进化/快照均需你主动说触发词，无后台静默保存。
 - **会越来越慢吗？** 归档是只增不改，读取性能取决于分片数量；68 文件规模下索引统计 0.07 秒。
-- **能按日期或轮次检索归档吗？** `mark` / `search` / `summary` 与 `--style full`、`--css` 为基础版之外的赞赏版功能，基础版开放 `stats`、`pending` 与 `minimal` 渲染。
+- **能按日期或轮次检索归档吗？** `mark` / `search` / `summary` 与 `--style full`、`--css` 需按版本核对（对照表见【JINENGPU_URL_待填】）；本包开放 `stats`、`pending` 与 `minimal` 渲染。
 - **换平台后历史还能用吗？** 能，带上 `archive/` 目录即可继续增量归档。
 - **快照双文档（PROJECT_SNAPSHOT.md / PROJECT.md）会不会写着写着不同步？** 已内置防断裂规范：更新日志逐条比对、章节正文双向回改互检、头部元数据强制刷新，并要求联动完成后运行 `scripts/snapshot_sync_check.py` 做六维核账（退出码非 0 即存在断裂）。
 
@@ -116,9 +116,8 @@ Layer 1 对话归档            Layer 2 规则萃取            Layer 3 项目�
 
 ---
 
-> 本包为 **MindVault 基础版（免费）**：`archive_index` 的 `mark/search/summary`、`jsonl_to_md` 的 `full/--css` 为赞赏版功能。
-> 赞赏版（完整版）获取：https://wzyp.cn/item/p0r2lb
+> 本包免费：`archive_index` 开放 `stats` / `pending`，`jsonl_to_md` 开放 `minimal` 渲染。更多命令的对照表见【JINENGPU_URL_待填】。
 
 ---
 
-*MindVault v1.2.2 · 基础版免费发布 · 5000+ 轮实战验证 · 跨平台 Agent 对话归档与记忆基础设施*
+*MindVault v1.2.5 · 免费 · 5000+ 轮实战验证 · 跨平台 Agent 对话归档与记忆基础设施*
