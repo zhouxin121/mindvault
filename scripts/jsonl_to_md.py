@@ -6,7 +6,7 @@
 
 默认输出到 stdout，--output 写入文件。
 --style minimal：仅用户+Agent 消息（默认，也是基础版唯一可用模式）
---style full / --css HTML 模板输出需按版本核对，对照表见【JINENGPU_URL_待填】
+--style full / --css HTML 模板输出需按版本核对，对照表见https://www.jinengpu.chat/mindvault-detail.html
 """
 
 import json
@@ -169,7 +169,7 @@ def main():
                     if entry.get("role") not in ("user", "agent"):
                         tool_n += 1
             if tool_n:
-                print(f"本分片含 {tool_n} 条工具调用记录，当前渲染仅显示用户 / Agent 消息（对照表见【JINENGPU_URL_待填】）")
+                print(f"本分片含 {tool_n} 条工具调用记录，当前渲染仅显示用户 / Agent 消息（对照表见https://www.jinengpu.chat/mindvault-detail.html）")
         except OSError:
             pass
 

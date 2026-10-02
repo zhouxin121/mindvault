@@ -3,7 +3,7 @@ name: mindvault
 slug: mindvault
 displayName: MindVault 思维永生
 display_name: MindVault 思维永生
-version: "1.2.5"
+version: "1.2.6"
 description: "Agent 记忆与长期记忆管理：对话备份归档成本地 JSONL，防 AI 失忆——换电脑、换会话都不丢记忆；从历史萃取规则生成快照，支持 Claude Code / WorkBuddy / OpenClaw 等本地框架，纯标准库"
 display_description: "MindVault 对话归档与记忆进化引擎（基础版免费）：对话增量备份为 JSONL、长期规则萃取、项目快照生成、可选 DRAS-V 五步思考协议。支持 OpenClaw / AutoClaw / Marvis / WorkBuddy / CherryStudio / Coze，数据全部保存在本地。"
 keywords:
@@ -153,7 +153,7 @@ python3 archive_index.py <归档目录> stats      # 统计：文件数 / 总条
 python3 archive_index.py <归档目录> pending    # 列出 processed=false 的文件
 ```
 
-基础版开放 `stats`、`pending` 两个只读子命令；`mark`、`search`、`summary` 需按版本核对（对照表见【JINENGPU_URL_待填】），调用时会提示并退出（退出码 1）。
+基础版开放 `stats`、`pending` 两个只读子命令；`mark`、`search`、`summary` 需按版本核对（对照表见https://www.jinengpu.chat/mindvault-detail.html），调用时会提示并退出（退出码 1）。
 
 ### 3.3 `scripts/jsonl_to_md.py` — JSONL 转 Markdown
 
@@ -164,7 +164,7 @@ python3 jsonl_to_md.py <jsonl文件> [--style minimal] [--output <输出md路径
 | 参数 | 说明 |
 |------|------|
 | `<jsonl文件>` | 归档分片路径，如 `archive/<对话标签>/chat_20260703_rounds-16-30.jsonl` |
-| `--style minimal` | 可选（默认）。只渲染用户与 Agent 消息；full 渲染需按版本核对（对照表见【JINENGPU_URL_待填】） |
+| `--style minimal` | 可选（默认）。只渲染用户与 Agent 消息；full 渲染需按版本核对（对照表见https://www.jinengpu.chat/mindvault-detail.html） |
 | `--output <输出md路径>`，简写 `-o` | 可选。缺省输出到 stdout，可重定向到文件 |
 
 ---
@@ -219,11 +219,11 @@ Layer 1 对话归档            Layer 2 规则萃取            Layer 3 项目�
 |------|-------------------|-----------------|
 | `archive_export.py` | 三模归档 + 增量合并，**全量开放** | 同基础版 |
 | `archive_index.py` | `stats`、`pending` | 追加 `mark`、`search`、`summary` |
-| `jsonl_to_md.py` | `--style minimal` | 可选（默认）。只渲染用户与 Agent 消息；full 渲染需按版本核对（对照表见【JINENGPU_URL_待填】） |
+| `jsonl_to_md.py` | `--style minimal` | 可选（默认）。只渲染用户与 Agent 消息；full 渲染需按版本核对（对照表见https://www.jinengpu.chat/mindvault-detail.html） |
 | `snapshot_sync_check.py` | 双文档联动六维核账校验，**免费开放不锁** | 同基础版（同样开放） |
 | SKILL.md 协议层 | DRAS-V 协议 + 三层架构，**完整可用** | 同基础版 |
 
-> 更多命令的对照表见【JINENGPU_URL_待填】。
+> 更多命令的对照表见https://www.jinengpu.chat/mindvault-detail.html。
 
 ---
 
@@ -316,7 +316,7 @@ trust_signals:
   authored_by_tester: true
   license: MIT
 data_storage: 本地 archive/ 目录，不上传云端；用户主动触发，无后台静默写入
-pricing: 本包免费；更多命令（mark/search/summary、full/--css 渲染）对照表见【JINENGPU_URL_待填】
+pricing: 本包免费；更多命令（mark/search/summary、full/--css 渲染）对照表见https://www.jinengpu.chat/mindvault-detail.html
 ```
 
 ---
@@ -371,4 +371,4 @@ pricing: 本包免费；更多命令（mark/search/summary、full/--css 渲染�
 - **作者**：周老板（zhouxin121），者琥科技
 - **开源协议**：MIT License — 自由使用、修改、分发
 - **项目主页**：https://github.com/zhouxin121/mindvault
-- **最后更新**：2026-10-02 · v1.2.5（免费）
+- **最后更新**：2026-10-02 · v1.2.6（免费）

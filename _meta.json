@@ -2,7 +2,7 @@
   "name": "mindvault",
   "slug": "mindvault",
   "display_name": "MindVault 思维永生",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "date": "2026-09-29",
   "category": "memory",
   "platforms": [
@@ -25,10 +25,10 @@
   },
   "pricing": {
     "mode": "free",
-    "free": "免费：archive_index 支持 stats/pending；jsonl_to_md 仅 minimal 模式；archive_export 三模归档+增量合并全量开放；更多命令对照表见【JINENGPU_URL_待填】；DRAS-V 协议 + 三层架构完整可用",
-    "note": "v1.2.2 = 原 v1.1.4 重制版（版本命名规则调整：赞赏版 patch 以 .1 结尾、公开免费版以 .2 结尾）= v1.1.3 基础版 + 双文档联动断裂修复：新增六维核账校验脚本 scripts/snapshot_sync_check.py（纯标准库，免费开放，不加锁）、Layer 3 增补「双文档联动与核账校验」规范、故障排查补 2 条；脚本功能边界不变；赞赏版见 【JINENGPU_URL_待填】",
+    "free": "免费：archive_index 支持 stats/pending；jsonl_to_md 仅 minimal 模式；archive_export 三模归档+增量合并全量开放；更多命令对照表见https://www.jinengpu.chat/mindvault-detail.html；DRAS-V 协议 + 三层架构完整可用",
+    "note": "v1.2.2 = 原 v1.1.4 重制版（版本命名规则调整：赞赏版 patch 以 .1 结尾、公开免费版以 .2 结尾）= v1.1.3 基础版 + 双文档联动断裂修复：新增六维核账校验脚本 scripts/snapshot_sync_check.py（纯标准库，免费开放，不加锁）、Layer 3 增补「双文档联动与核账校验」规范、故障排查补 2 条；脚本功能边界不变；赞赏版见 https://www.jinengpu.chat/mindvault-detail.html",
     "price": "1.99元（一次买断，长期有效）",
-    "paid": "【JINENGPU_URL_待填】"
+    "paid": "https://www.jinengpu.chat/mindvault-detail.html"
   },
   "dependencies": {
     "python": "3.10+",
@@ -78,7 +78,7 @@
     "github": "https://github.com/zhouxin121/mindvault",
     "clawhub": "https://clawhub.ai/zhouxin121/mindvault-agent-memory",
     "skillhub": "https://skillhub.cn",
-    "paid": "【JINENGPU_URL_待填】"
+    "paid": "https://www.jinengpu.chat/mindvault-detail.html"
   },
   "description": "Agent 记忆与长期记忆管理：对话备份归档成本地 JSONL，防 AI 失忆——换电脑、换会话都不丢记忆；从历史萃取规则生成快照，支持 Claude Code / WorkBuddy / OpenClaw 等本地框架，纯标准库"
 }
