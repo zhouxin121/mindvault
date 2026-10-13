@@ -3,7 +3,7 @@ name: mindvault
 slug: mindvault
 displayName: MindVault 思维永生
 display_name: MindVault 思维永生
-version: "1.2.6"
+version: "1.2.7"
 description: "Agent 记忆与长期记忆管理：对话备份归档成本地 JSONL，防 AI 失忆——换电脑、换会话都不丢记忆；从历史萃取规则生成快照，支持 Claude Code / WorkBuddy / OpenClaw 等本地框架，纯标准库"
 display_description: "MindVault 对话归档与记忆进化引擎（基础版免费）：对话增量备份为 JSONL、长期规则萃取、项目快照生成、可选 DRAS-V 五步思考协议。支持 OpenClaw / AutoClaw / Marvis / WorkBuddy / CherryStudio / Coze，数据全部保存在本地。"
 keywords:
