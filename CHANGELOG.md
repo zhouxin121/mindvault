@@ -1,15 +1,55 @@
-## v1.2.4 - 2026-10-13
+## v1.2.7 - 2026-10-13
 
-- description 词根升级：memory backup / never forget / 长期记忆 前置（周度快照D2：memory/记忆/forget/backup 词根11天未上榜→description首句重写）
-- 仅文字修订，功能无变化（ClawHub 无 listing PATCH 端点，词根改动随版本重发——P0-3 教训）
+- 版本对齐修正：v1.2.4（含半新半旧内容的误发版）由本版覆盖；基线= v1.2.6 完整内容（含 10-02 词根补丁 keywords 全套），无功能变化
+- 事故记录：10-13 基于 v1.2.1 旧本地目录误改 description 发 1.2.4（本地目录未回流 10-02 的 v1.2.6 所致）——教训入册：**发版前必须先核对本地目录版本 vs 现网最新版本**
 
-## [1.2.1] - 2026-09-18
-- **版本命名规则调整（重制）**：完整版 patch 以 `.1` 结尾，公开免费版以 `.2` 结尾；本版由原 v1.1.2 统一更名为 **v1.2.1**，功能内容与 v1.1.2 一致，仅版本号与本文档同步刷新
-- **双文档联动断裂修复（Layer 3）**：`PROJECT_SNAPSHOT.md`（唯一真相源）与 `PROJECT.md`（详细版）此前只要求"改后同步对端 + diff 关键字段"，实测出现更新日志条数不等（27 vs 31）、同日期条目重复、同日期文本漂移、章节正文残留旧事实（快照仍写 v1.0.1）——关键字段 diff 通过 ≠ 真正同步
-- **新增 `scripts/snapshot_sync_check.py`**：纯标准库六维核账校验（更新日志条数对照 / 日期序列逐条比对 / 逐字一致性 / 倒序校验 / 章节标题集合差异 / 头部元数据差异），支持 `--help` 与 `--snapshot` / `--detail` 入参，发现断裂退出码非 0；已用 `output/PROJECT_SNAPSHOT.md` 与 `output/PROJECT.md` 实跑通过，并以篡改样本反向验证（正确报断裂、退出码 1）
-- **SKILL.md（Layer 3）**：新增「双文档联动与核账校验」强制规范——更新日志逐条比对、章节正文双向回改互检、头部元数据（数据来源 / 生成方式 / 生成日期 / 最近更新日期）强制刷新、联动完成后必须运行校验脚本并附输出；故障排查表由 8 条扩充至 10 条（新增「日志条数不一致 / 同日期条目重复」「章节漏回改」）
-- **README.md / _meta.json**：文件结构与说明同步新增校验脚本，版本统一至 1.2.1（日期 2026-09-18）
-- 原有三脚本函数体无改动，新增脚本不引入任何第三方依赖
+## v1.2.6（2026-10-02）
+
+- 链接口径统一：包内所有引导链接指向官方详情页（jinengpu.chat/mindvault-detail.html），购买动作在详情页完成，包内不出现支付直链
+- 落地页链接定值（原占位符 16 处全替换）
+
+## v1.2.5（2026-10-02）
+
+- 锁口提示语口径调整：archive_index 的 mark/search/summary 与 jsonl_to_md 的运行提示改为中性「需按版本核对」措辞（行为不变：提示 + 退出码 1）
+- jsonl_to_md 新增未渲染内容中性提示（分片含工具调用记录时显示条数，N=0 不打印）
+- README / SKILL / _meta.json 付费对照表链接统一（官方渠道占位）
+- README 尾注 / SKILL 末尾版本注记同步（原 v1.2.2 残留修正）
+- 平台表补 Claude Code（~/.claude/projects/，CherryStudio Claude Code 模式覆盖）；frontmatter platforms 补 claudecode
+
+## [1.2.4] - 2026-09-30
+
+### Changed
+- skillhub/ClawHub 搜索描述关键词化：前 100 字意图词命中 3→8（记忆×2/备份/换电脑/AI 失忆/Claude/WorkBuddy/归档），skill 逻辑零改动
+
+## [1.2.3] - 2026-09-29
+
+### Changed
+- Listing 文案（description/keywords）补「记忆」词根，提升 memory/记忆/forget 泛词检索命中（skill 逻辑零改动）
+
+## [1.2.2] - 2026-09-18
+- **版本命名规则调整（重制）**：完整版 patch 以 `.1` 结尾，公开免费版以 `.2` 结尾；本版由原 v1.1.4 统一更名为 **v1.2.2**，功能内容与 v1.1.4 一致，仅版本号与本文档同步刷新
+- **双文档联动断裂修复（与完整版 v1.2.1 同步）**：`PROJECT_SNAPSHOT.md`（唯一真相源）与 `PROJECT.md`（详细版）此前只要求"改后同步对端 + diff 关键字段"，实测出现更新日志条数不等（27 vs 31）、同日期条目重复、同日期文本漂移、章节正文残留旧事实（快照仍写 v1.0.1）——关键字段 diff 通过 ≠ 真正同步
+- **新增 `scripts/snapshot_sync_check.py`（基础版免费开放，不加锁）**：纯标准库六维核账校验（更新日志条数 / 日期序列 / 逐字一致 / 倒序 / 章节标题集合 / 头部元数据），支持 `--help` 与 `--snapshot` / `--detail` 入参，发现断裂退出码非 0；已用真实双文档实跑通过，并以篡改样本反向验证（正确报断裂、退出码 1）
+- **SKILL.md**：第四部分新增「Layer 3 双文档联动与核账校验（强制）」规范；故障排查由 10 条扩充至 12 条；Agent 评估块 `failure_paths` 同步为 12；版本统一至 1.2.2（日期 2026-09-18）
+- **README.md / _meta.json**：文件结构与说明同步新增校验脚本，版本统一至 1.2.2
+- **锁 4 口策略不变**：`archive_index` 的 mark/search/summary、`jsonl_to_md` 的 `--style full` / `--css` 仍为赞赏版功能，函数体完整保留未重写；新增校验脚本不锁
+
+## [1.1.3] - 2026-09-17
+- **GEO / 可信度改造（免费版）**：按 AI 可读性思路重构 SKILL.md 结构——`description` 前 128 字符改写为「核心功能 + 分片规则 + 输出物」（129→125 字符）；`keywords` 前置搜索意图词（对话备份/对话归档/Agent 长期记忆/上下文恢复/项目快照/规则萃取）；新增 `display_description`、`tags`、`slug`、`displayName` 字段
+- **SKILL.md 结构重排**：核心用法（核心功能表 + 快速开始 + 命令参数速查）前置到前 500 字内；注意事项、FAQ、故障排查依次靠前；设计背景/迭代记录/作者信息后置
+- **SKILL.md 新增**：FAQ 6 条（自然语言问答，含边界与增量安全性说明）、实测数据表（15.1MB / 69 分片 / 68 文件 14,949 条目 / stats 0.07s / 转换 ≈0.1s）、首次集成时间预估（约 10 分钟）、故障排查由 8 条扩充至 10 条、参考链接新增 GitHub/ClawHub/SkillHub 互链
+- **README.md 改写**：首段与标题带入核心关键词；快速开始前置为 3 条命令；新增实测数据表、常见问题、数据与隐私章节；保留开源面貌（赞赏版说明置于文末）
+- **_meta.json**：版本升至 1.1.3；新增 `slug` / `display_name` / `tested_evidence` / `links` 字段；keywords 中英文均按搜索意图重排
+- **doc 修正（不动函数体）**：`archive_index.py`、`jsonl_to_md.py` 模块 docstring 中残留的"（完整版）"及完整版命令清单改为"（基础版 · 免费）"+ 实际可用命令（archive_index 的 usage 由 `print(__doc__)` 输出，此修正同时修正了运行时的帮助文本）
+- 完整版（赞赏版 v1.1.1）不受本次改造影响，未做任何修改
+- `LICENSE` 重命名为 `LICENSE.md` 并补全 MIT 协议全文（SkillHub 不接受无扩展名文件；GitHub 同样识别 LICENSE.md）
+
+## [1.1.2] - 2026-09-15
+- 恢复双版本拆分：以 v1.1.1 完整版为基线派生**基础版（免费）**，函数体不重写，仅施加 4 类锁定
+- archive_index.py：锁定 mark/search/summary 三命令（print 赞赏提示 + sys.exit(1)），基础版保留 stats/pending
+- jsonl_to_md.py：--style 仅允许 minimal；--css 注释移除；保留 minimal 渲染全链路
+- SKILL.md / _meta.json：版本统一至 1.1.2，注明基础版能力边界与赞赏版获取方式（https://wzyp.cn/item/p0r2lb）
+- archive_export.py：无差异，三模归档 + 增量合并全量开放
 
 ## [1.1.1] - 2026-09-14
 - **archive_export.py（P0-1 修复）**：OpenClaw 模式新增独立 `role == 'toolResult'` 分支——现代 OpenClaw 格式 toolResult 为独立消息（含 toolCallId/toolName/content/isError），旧版仅在 assistant 内嵌套处理导致独立消息整条丢失；现按 toolCallId 精确匹配/无 id 按 toolName 匹配待配对 toolCall，调用 process_tool 写出
